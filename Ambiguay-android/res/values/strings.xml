@@ -2,8 +2,15 @@
 <resources>
 
     <string name="app_name">Ambiguay-android</string>
-    <string name="title_activity_fullscreen">FullscreenActivity</string>
+    <string name="title_activity_fullscreen">Ambiguay-android</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="ambiguay">AMBIGUAY\nANDROID</string>
-
+    <string name="title_activity_map">MapActivity</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_map_list">MapListActivity</string>
+	<string name="Insert">Añadir</string>
+    
+    
+    
 </resources>
