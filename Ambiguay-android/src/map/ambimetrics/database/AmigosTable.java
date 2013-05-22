@@ -16,6 +16,7 @@ public class AmigosTable {
 	  public static final String COLUMN_SEXO = "sexo";
 	  public static final String COLUMN_LAT = "latitud";
 	  public static final String COLUMN_LONG = "longitud";
+	  public static final String COLUMN_MOSTRAR = "mostrar";
 
 	  // Database creation SQL statement
 	  private static final String DATABASE_CREATE = "create table " 
@@ -28,7 +29,8 @@ public class AmigosTable {
 	      + COLUMN_EMAIL + " text not null,"
 	      + COLUMN_SEXO + " integer not null,"
 	      + COLUMN_LAT + " double,"
-	      + COLUMN_LONG + " double"
+	      + COLUMN_LONG + " double,"
+	      + COLUMN_MOSTRAR + " integer not null" 
 	      + ");";
 
 	  public static void onCreate(SQLiteDatabase database) {

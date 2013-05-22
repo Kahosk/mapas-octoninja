@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class AmigosDatabaseHelper extends SQLiteOpenHelper {
 
   private static final String DATABASE_NAME = "amigostable.db";
-  private static final int DATABASE_VERSION = 5;
+  private static final int DATABASE_VERSION = 7;
 
   public AmigosDatabaseHelper(Context context) {
     super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -17,6 +17,7 @@ public class AmigosDatabaseHelper extends SQLiteOpenHelper {
   @Override
   public void onCreate(SQLiteDatabase database) {
     AmigosTable.onCreate(database);
+    //UsuarioTable.onCreate(database);
   }
 
   // Method is called during an upgrade of the database,

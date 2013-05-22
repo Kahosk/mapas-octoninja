@@ -21,6 +21,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.SimpleCursorAdapter;
@@ -31,7 +32,7 @@ public class AmigosFragment extends ListFragment implements LoaderManager.Loader
 	
 	 private SimpleCursorAdapter adapter;
 	 SearchView mSearchView;
-
+	 private static final int DELETE_ID = Menu.FIRST + 1;
 	 
 	 private Uri direccion;
 	
@@ -61,6 +62,11 @@ public class AmigosFragment extends ListFragment implements LoaderManager.Loader
 		
 		return super.onCreateView(inflater, container, savedInstanceState);
 	}
+	
+	
+
+	  
+	
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
 	    super.onListItemClick(l, v, position, id);
@@ -76,16 +82,17 @@ public class AmigosFragment extends ListFragment implements LoaderManager.Loader
     	AlertDialog.Builder builder = new AlertDialog.Builder(this.getActivity());
 
     	// 2. Chain together various setter methods to set the dialog characteristics
-    	builder.setMessage("Hola k ase?");
+    	builder.setMessage(R.string.dialog_delete);
 
-    	builder.setPositiveButton("Si!", new DialogInterface.OnClickListener() {
+    	builder.setPositiveButton(R.string.sure, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 // User clicked OK button
-            	
+            	getActivity().getContentResolver().delete(direccion, null, null);
+                fillData(); 
             	dialog.cancel();
             }
         });
-    	builder.setNegativeButton("HNO!", new DialogInterface.OnClickListener() {
+    	builder.setNegativeButton(R.string.negative, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 // User cancelled the dialog
             	dialog.cancel();
@@ -96,7 +103,10 @@ public class AmigosFragment extends ListFragment implements LoaderManager.Loader
     	// 3. Get the AlertDialog from create()
     	AlertDialog dialog = builder.create();
     	dialog.show();
-	    
+        Uri uri = Uri.parse(MyAmigosContentProvider.CONTENT_URI1 + "/"
+                + String.valueOf(id));
+        direccion = uri;
+
 	}
 	
 	@Override

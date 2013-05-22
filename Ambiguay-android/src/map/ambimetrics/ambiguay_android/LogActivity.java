@@ -1,5 +1,12 @@
 package map.ambimetrics.ambiguay_android;
 
+import map.ambimetrics.comunicacion.RequestMethod;
+import map.ambimetrics.comunicacion.RestClient;
+import map.ambimetrics.database.UsuarioTable;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
@@ -13,13 +20,17 @@ import android.view.Menu;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 /**
  * Activity which displays a login screen to the user, offering registration as
  * well.
  */
-public class MainActivity extends Activity {
+public class LogActivity extends Activity {
+	private static final String URL = "http://10.0.0.202/Agenda/";
+	private String Respuesta = null;
+	
 	/**
 	 * A dummy authentication store containing known user names and passwords.
 	 * TODO: remove after connecting to a real authentication system.
@@ -52,7 +63,7 @@ public class MainActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		setContentView(R.layout.activity_main);
+		setContentView(R.layout.activity_log);
 
 		// Set up the login form.
 		mEmail = getIntent().getStringExtra(EXTRA_EMAIL);
@@ -76,7 +87,11 @@ public class MainActivity extends Activity {
 		mLoginFormView = findViewById(R.id.login_form);
 		mLoginStatusView = findViewById(R.id.login_status);
 		mLoginStatusMessageView = (TextView) findViewById(R.id.login_status_message);
+		
 
+
+		
+		
 		findViewById(R.id.sign_in_button).setOnClickListener(
 				new View.OnClickListener() {
 					@Override
@@ -89,7 +104,7 @@ public class MainActivity extends Activity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
-		getMenuInflater().inflate(R.menu.main, menu);
+		getMenuInflater().inflate(R.menu.log, menu);
 		return true;
 	}
 
@@ -238,5 +253,43 @@ public class MainActivity extends Activity {
 			mAuthTask = null;
 			showProgress(false);
 		}
+	}
+	private void sendJSON(){
+
+	    String email = mEmailView.getText().toString();
+	    String password = mPasswordView.getText().toString();
+	    JSONObject cadena = new JSONObject(); //Creamos un objeto de tipo JSON
+    	
+		try { 
+    	  		cadena.put("tag", "registro");
+    		    cadena.put(UsuarioTable.COLUMN_EMAIL, email);
+    		    cadena.put(UsuarioTable.COLUMN_PASSWORD, password);//Le asignamos los datos que necesitemos
+		}catch (JSONException e) {
+        	e.printStackTrace();
+        }		
+		
+		RestClient client = new RestClient(URL);
+		client.AddParam("JSON", cadena.toString());
+		
+
+		try {
+		    client.Execute(RequestMethod.POST);
+		} catch (Exception e) {
+		    e.printStackTrace();
+		}
+
+		Respuesta = client.getResponse();
+		
+		
+		
+		
+		/*
+        Toast toast1 =
+                Toast.makeText(getApplicationContext(),
+                		obj, Toast.LENGTH_LONG);
+     
+            toast1.show();
+		*/
+	
 	}
 }

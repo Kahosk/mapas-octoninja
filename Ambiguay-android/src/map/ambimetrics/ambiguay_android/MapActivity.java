@@ -10,6 +10,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
@@ -76,12 +77,12 @@ public class MapActivity extends FragmentActivity implements LocationListener {
 				/*
 				Toast.makeText(
 						MapActivity.this, 
-						"Cambio C·mara\n" + 
+						"Cambio C√°mara\n" +
 						"Lat: " + position.target.latitude + "\n" +
 						"Lng: " + position.target.longitude + "\n" +
 						"Zoom: " + position.zoom + "\n" +
-						"OrientaciÛn: " + position.bearing + "\n" +
-						"¡ngulo: " + position.tilt,
+						"Orientaci√≥n: " + position.bearing + "\n" +
+						"√Ångulo: " + position.tilt,
 						Toast.LENGTH_SHORT).show();
 						*/
 			}
@@ -136,7 +137,7 @@ public class MapActivity extends FragmentActivity implements LocationListener {
 	{
 		mapa.addMarker(new MarkerOptions()
         .position(new LatLng(lat, lng))
-        .title("Pais: EspaÒa").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+        .title("Pais: Espa√±a").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
 	}
 	
 	private void cameraPosition()
@@ -167,7 +168,7 @@ public class MapActivity extends FragmentActivity implements LocationListener {
 
 		mapa.addPolyline(lineas);
 		
-		//Dibujo con polÌgonos
+		//Dibujo con poligonos
 		
 		//PolygonOptions rectangulo = new PolygonOptions()
 		//              .add(new LatLng(45.0, -12.0),

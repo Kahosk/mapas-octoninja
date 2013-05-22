@@ -20,6 +20,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 
 
+
+
 public class MapListActivity extends FragmentActivity implements LocationListener  {
 	TabHost tHost;
 	
@@ -50,9 +52,9 @@ public class MapListActivity extends FragmentActivity implements LocationListene
 				
 				com.google.android.gms.maps.SupportMapFragment mapFragment = (SupportMapFragment)fm.findFragmentById(R.id.mapa);
 				mapa = mapFragment.getMap();
-				
+				mapa.clear();
 				extrasMapa();
-				
+				marcarAmigos();
 			
 				AmigosFragment amigosFragment = (AmigosFragment) fm.findFragmentByTag("amigos");
 				android.support.v4.app.FragmentTransaction ft = fm.beginTransaction();
@@ -104,8 +106,10 @@ public class MapListActivity extends FragmentActivity implements LocationListene
         tSpecAmigos.setIndicator("Amigos");        
         tSpecAmigos.setContent(R.id.tab2);
         tHost.addTab(tSpecAmigos);
-
-        marcarAmigos();
+        
+        //addAmigo();
+        extrasMapa();
+		marcarAmigos();
      }
 
 
@@ -130,8 +134,6 @@ public class MapListActivity extends FragmentActivity implements LocationListene
 			color = BitmapDescriptorFactory.HUE_MAGENTA;
 		}
 			
-		
-		
 		mapa.addMarker(new MarkerOptions()
         .position(new LatLng(lat, lng))
         .title(titulo).icon(BitmapDescriptorFactory.defaultMarker(color)));
@@ -139,35 +141,88 @@ public class MapListActivity extends FragmentActivity implements LocationListene
     
 	public void marcarAmigos(){
 		
-		
+		Cursor cursor = null;
 		String[] projection = { AmigosTable.COLUMN_ID, AmigosTable.COLUMN_NOMBRE, AmigosTable.COLUMN_APELLIDOS, AmigosTable.COLUMN_LAT, AmigosTable.COLUMN_LONG, AmigosTable.COLUMN_SEXO };
-		Cursor cursor = getContentResolver().query(MyAmigosContentProvider.CONTENT_URI1, projection, null, null,
+		cursor = getContentResolver().query(MyAmigosContentProvider.CONTENT_URI1, projection, null, null,
 		        null);   
-		    if (cursor != null) {
-		    	cursor.moveToFirst();
-		    	String lat = cursor.getString(cursor
-		                .getColumnIndexOrThrow(AmigosTable.COLUMN_LAT));
-		    	String longitud = cursor.getString(cursor
-		                .getColumnIndexOrThrow(AmigosTable.COLUMN_LONG));
-		    	String nombre = cursor.getString(cursor
-		                .getColumnIndexOrThrow(AmigosTable.COLUMN_NOMBRE));
-		    	String sexo = cursor.getString(cursor
-		                .getColumnIndexOrThrow(AmigosTable.COLUMN_SEXO));
-		    	mostrarMarcador(Double.valueOf(lat).doubleValue(),Double.valueOf(longitud).doubleValue(),nombre, Integer.parseInt(sexo));
-		    	while(cursor.moveToNext()){
-		    		lat = cursor.getString(cursor
+		    if (cursor!=null) {
+		    	if (cursor.moveToFirst()) {
+			    	String lat = cursor.getString(cursor
 			                .getColumnIndexOrThrow(AmigosTable.COLUMN_LAT));
-			    	longitud = cursor.getString(cursor
+			    	String longitud = cursor.getString(cursor
 			                .getColumnIndexOrThrow(AmigosTable.COLUMN_LONG));
-			    	nombre = cursor.getString(cursor
+			    	String nombre = cursor.getString(cursor
 			                .getColumnIndexOrThrow(AmigosTable.COLUMN_NOMBRE));
-			    	sexo = cursor.getString(cursor
+			    	String sexo = cursor.getString(cursor
 			                .getColumnIndexOrThrow(AmigosTable.COLUMN_SEXO));
 			    	mostrarMarcador(Double.valueOf(lat).doubleValue(),Double.valueOf(longitud).doubleValue(),nombre, Integer.parseInt(sexo));
+			    	while(cursor.moveToNext()){
+			    		lat = cursor.getString(cursor
+				                .getColumnIndexOrThrow(AmigosTable.COLUMN_LAT));
+				    	longitud = cursor.getString(cursor
+				                .getColumnIndexOrThrow(AmigosTable.COLUMN_LONG));
+				    	nombre = cursor.getString(cursor
+				                .getColumnIndexOrThrow(AmigosTable.COLUMN_NOMBRE));
+				    	sexo = cursor.getString(cursor
+				                .getColumnIndexOrThrow(AmigosTable.COLUMN_SEXO));
+				    	mostrarMarcador(Double.valueOf(lat).doubleValue(),Double.valueOf(longitud).doubleValue(),nombre, Integer.parseInt(sexo));
+			    	}
 		    	}
-		    	
 		    }
 		
+	}
+	
+	public void addAmigo(){
+		
+		Cursor cursor = null;
+		String[] projection = { AmigosTable.COLUMN_ID, AmigosTable.COLUMN_NOMBRE, AmigosTable.COLUMN_APELLIDOS, AmigosTable.COLUMN_LAT, AmigosTable.COLUMN_LONG, AmigosTable.COLUMN_SEXO };
+		//cursor = getContentResolver().query(MyAmigosContentProvider.CONTENT_URI1, projection, null, null,
+		//        null);   
+		String nombre = "Carlos";
+		String apellidos = "Mas";
+		String telefono = "123456";
+		String email = "takato1@gmail.com";
+		String sexo = "1";
+		String lat = "39.9766";
+		String longitud = "-0.0584";
+		String mostrar = "1";
+		
+		ContentValues values = new ContentValues();
+	    values.put(AmigosTable.COLUMN_NOMBRE, nombre);
+	    values.put(AmigosTable.COLUMN_APELLIDOS, apellidos);
+	    values.put(AmigosTable.COLUMN_TELEFONO, telefono);
+	    values.put(AmigosTable.COLUMN_EMAIL, email);
+	    values.put(AmigosTable.COLUMN_SEXO, sexo);
+	    values.put(AmigosTable.COLUMN_LAT, lat);
+	    values.put(AmigosTable.COLUMN_LONG, longitud);
+	    values.put(AmigosTable.COLUMN_MOSTRAR, mostrar);
+		 
+	 
+	    amigoUri = getContentResolver().insert(MyAmigosContentProvider.CONTENT_URI1, values);
+	    
+	    //39,9859, -0,0534
+		nombre = "Estela";
+		apellidos = "Ibañez";
+		telefono = "123456";
+		email = "estela@gmail.com";
+		sexo = "2";
+		lat = "39.9859";
+		longitud = "-0.0534";
+		mostrar = "1";
+		
+		values = new ContentValues();
+	    values.put(AmigosTable.COLUMN_NOMBRE, nombre);
+	    values.put(AmigosTable.COLUMN_APELLIDOS, apellidos);
+	    values.put(AmigosTable.COLUMN_TELEFONO, telefono);
+	    values.put(AmigosTable.COLUMN_EMAIL, email);
+	    values.put(AmigosTable.COLUMN_SEXO, sexo);
+	    values.put(AmigosTable.COLUMN_LAT, lat);
+	    values.put(AmigosTable.COLUMN_LONG, longitud);
+	    values.put(AmigosTable.COLUMN_MOSTRAR, mostrar);
+		 
+	 
+	    amigoUri = getContentResolver().insert(MyAmigosContentProvider.CONTENT_URI1, values);
+	    
 	}
    
 
