@@ -25,7 +25,7 @@ public class UsuarioTable {
       + COLUMN_TELEFONO + " text," 
       + COLUMN_EMAIL + " text not null,"
       + COLUMN_PASSWORD + " text not null,"
-      + COLUMN_SEXO + " integer not null,"
+      + COLUMN_SEXO + " integer not null"
       + ");";
 
   public static void onCreate(SQLiteDatabase database) {

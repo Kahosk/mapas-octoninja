@@ -2,6 +2,7 @@ package map.ambimetrics.ambiguay_android;
 
 import map.ambimetrics.comunicacion.RequestMethod;
 import map.ambimetrics.comunicacion.RestClient;
+import map.ambimetrics.contentprovider.MyAmigosContentProvider;
 import map.ambimetrics.database.UsuarioTable;
 
 import org.json.JSONException;
@@ -11,6 +12,9 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -20,28 +24,29 @@ import android.view.Menu;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * Activity which displays a login screen to the user, offering registration as
  * well.
  */
 public class LogActivity extends Activity {
-	private static final String URL = "http://10.0.0.202/Agenda/";
+	private static final String URL = "http://192.168.0.153/Ambiway/";
+
 	private String Respuesta = null;
 	
 	/**
 	 * A dummy authentication store containing known user names and passwords.
 	 * TODO: remove after connecting to a real authentication system.
 	 */
-	private static final String[] DUMMY_CREDENTIALS = new String[] {
-			"foo@example.com:hello", "bar@example.com:world" };
+	//private static final String[] DUMMY_CREDENTIALS = new String[] {
+	//		"foo@example.com:hello", "bar@example.com:world" };
 
 	/**
 	 * The default email to populate the email field with.
 	 */
-	public static final String EXTRA_EMAIL = "com.example.android.authenticatordemo.extra.EMAIL";
+	//public static final String EXTRA_EMAIL = "com.example.android.authenticatordemo.extra.EMAIL";
 
 	/**
 	 * Keep track of the login task to ensure we can cancel it if requested.
@@ -58,17 +63,19 @@ public class LogActivity extends Activity {
 	private View mLoginFormView;
 	private View mLoginStatusView;
 	private TextView mLoginStatusMessageView;
+	
+	private Uri usuarioUri = null;
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+	protected void onCreate(Bundle bundle) {
+		super.onCreate(bundle);
 
 		setContentView(R.layout.activity_log);
 
 		// Set up the login form.
-		mEmail = getIntent().getStringExtra(EXTRA_EMAIL);
+		//mEmail = getIntent().getStringExtra(EXTRA_EMAIL);
 		mEmailView = (EditText) findViewById(R.id.email);
-		mEmailView.setText(mEmail);
+		//mEmailView.setText(mEmail);
 
 		mPasswordView = (EditText) findViewById(R.id.password);
 		mPasswordView
@@ -88,7 +95,19 @@ public class LogActivity extends Activity {
 		mLoginStatusView = findViewById(R.id.login_status);
 		mLoginStatusMessageView = (TextView) findViewById(R.id.login_status_message);
 		
+	    Bundle extras = getIntent().getExtras();
 
+	    // Check from the saved Instance
+	    usuarioUri = (bundle == null) ? null : (Uri) bundle
+	        .getParcelable(MyAmigosContentProvider.CONTENT_ITEM_TYPE2);
+
+	    // Or passed from the other activity
+	    if (extras != null) {
+	    	usuarioUri = extras
+	          .getParcelable(MyAmigosContentProvider.CONTENT_ITEM_TYPE2);
+	    }
+	    if(usuarioUri != null)
+	    	fillData(usuarioUri);
 
 		
 		
@@ -100,6 +119,27 @@ public class LogActivity extends Activity {
 					}
 				});
 	}
+	
+	  private void fillData(Uri uri) {
+		  
+		    String[] projection = { UsuarioTable.COLUMN_NOMBRE, UsuarioTable.COLUMN_APELLIDOS,
+		        UsuarioTable.COLUMN_TELEFONO,UsuarioTable.COLUMN_EMAIL, 
+		        UsuarioTable.COLUMN_PASSWORD};
+		    Cursor cursor = getContentResolver().query(uri, projection, null, null,
+		        null);
+		    if (cursor != null) {
+		      if(cursor.moveToFirst()){
+			      mEmailView.setText(cursor.getString(cursor
+			              .getColumnIndexOrThrow(UsuarioTable.COLUMN_EMAIL)));
+			      mPasswordView.setText(cursor.getString(cursor
+			              .getColumnIndexOrThrow(UsuarioTable.COLUMN_PASSWORD)));
+			      
+			      // Always close the cursor
+			      cursor.close();
+		      }
+		    }
+		  }
+
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -215,21 +255,8 @@ public class LogActivity extends Activity {
 		protected Boolean doInBackground(Void... params) {
 			// TODO: attempt authentication against a network service.
 
-			try {
-				// Simulate network access.
-				Thread.sleep(2000);
-			} catch (InterruptedException e) {
-				return false;
-			}
-
-			for (String credential : DUMMY_CREDENTIALS) {
-				String[] pieces = credential.split(":");
-				if (pieces[0].equals(mEmail)) {
-					// Account exists, return true if the password matches.
-					return pieces[1].equals(mPassword);
-				}
-			}
-
+			sendJSON();
+			
 			// TODO: register the new account here.
 			return true;
 		}
@@ -238,13 +265,44 @@ public class LogActivity extends Activity {
 		protected void onPostExecute(final Boolean success) {
 			mAuthTask = null;
 			showProgress(false);
-
+			try {
 			if (success) {
-				finish();
+				int error = respuestaJSON(new JSONObject(Respuesta));
+				switch (error) {
+			    case 0: //correcto
+			    	Intent intent = new Intent(LogActivity.this, MapListActivity.class);
+			    	startActivity(intent);
+			    	finish();
+					break;
+			    case 1: //incorrecto
+			    	mPasswordView
+					.setError("No responde");
+			    	mPasswordView.requestFocus();
+					break;
+			    case 2: //password incorrecto
+					mPasswordView
+					.setError("Password incorrecto");
+					mPasswordView.requestFocus();
+					break;
+			    case 3: //usuario no registrado
+					mPasswordView
+					.setError(getString(R.string.error_incorrect_password));
+					mPasswordView.requestFocus();
+					break;
+				default:
+					mPasswordView
+					.setError("default");
+			mPasswordView.requestFocus();
+				}
+
 			} else {
 				mPasswordView
 						.setError(getString(R.string.error_incorrect_password));
 				mPasswordView.requestFocus();
+			}
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 
@@ -261,7 +319,7 @@ public class LogActivity extends Activity {
 	    JSONObject cadena = new JSONObject(); //Creamos un objeto de tipo JSON
     	
 		try { 
-    	  		cadena.put("tag", "registro");
+    	  		cadena.put("tag", "login");
     		    cadena.put(UsuarioTable.COLUMN_EMAIL, email);
     		    cadena.put(UsuarioTable.COLUMN_PASSWORD, password);//Le asignamos los datos que necesitemos
 		}catch (JSONException e) {
@@ -282,14 +340,20 @@ public class LogActivity extends Activity {
 		
 		
 		
-		
-		/*
-        Toast toast1 =
-                Toast.makeText(getApplicationContext(),
-                		obj, Toast.LENGTH_LONG);
-     
-            toast1.show();
-		*/
+	
+	}
+	
+	private int respuestaJSON(JSONObject cadena){
+        cadena.toString(); //Para obtener la cadena de texto de tipo JSON
+        int resp = 1;
+        try {
+        	String error = cadena.getString("error");
+        	resp = Integer.parseInt(error);
+        } catch (JSONException e) {
+        	// TODO Auto-generated catch block
+        	e.printStackTrace();
+		}
+        return resp;
 	
 	}
 }

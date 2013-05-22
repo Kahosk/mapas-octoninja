@@ -5,6 +5,7 @@ import java.util.HashSet;
 
 import map.ambimetrics.database.AmigosDatabaseHelper;
 import map.ambimetrics.database.AmigosTable;
+import map.ambimetrics.database.UsuarioTable;
 import android.content.ContentProvider;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -24,29 +25,29 @@ public class MyAmigosContentProvider extends ContentProvider {
   // Used for the UriMacher
   private static final int AMIGOS = 10;
   private static final int AMIGO_ID = 20;
-  //private static final int USUARIO = 30;
-  //private static final int USUARIO_ID = 40;
+  private static final int USUARIO = 30;
+  private static final int USUARIO_ID = 40;
   
   private static final String AUTHORITY = "map.ambimetrics.contentprovider";
 
   private static final String BASE_PATH1 = "amigo";
-  //private static final String BASE_PATH2 = "usuario";
+  private static final String BASE_PATH2 = "usuario";
   public static final Uri CONTENT_URI1 = Uri.parse("content://" + AUTHORITY
       + "/" + BASE_PATH1);
-  //public static final Uri CONTENT_URI2 = Uri.parse("content://" + AUTHORITY + "/" + BASE_PATH2);
+  public static final Uri CONTENT_URI2 = Uri.parse("content://" + AUTHORITY + "/" + BASE_PATH2);
 
   public static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE
       + "/amigos";
   public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE
       + "/amigo";
-  //public static final String CONTENT_ITEM_TYPE2 = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/usuario";
+  public static final String CONTENT_ITEM_TYPE2 = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/usuario";
 
   private static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
   static {
     sURIMatcher.addURI(AUTHORITY, BASE_PATH1, AMIGOS);
     sURIMatcher.addURI(AUTHORITY, BASE_PATH1 + "/#", AMIGO_ID);
-    //sURIMatcher.addURI(AUTHORITY, BASE_PATH2, USUARIO);
-    //sURIMatcher.addURI(AUTHORITY, BASE_PATH2 + "/#", USUARIO_ID);
+    sURIMatcher.addURI(AUTHORITY, BASE_PATH2, USUARIO);
+    sURIMatcher.addURI(AUTHORITY, BASE_PATH2 + "/#", USUARIO_ID);
   }
 
   @Override
@@ -76,6 +77,13 @@ public class MyAmigosContentProvider extends ContentProvider {
             + uri.getLastPathSegment());
     case AMIGOS:
     	queryBuilder.setTables(AmigosTable.TABLE_AMIGOS);
+    	break;
+    case USUARIO_ID:
+    	// Adding the ID to the original query
+        queryBuilder.appendWhere(UsuarioTable.COLUMN_ID + "="
+            + uri.getLastPathSegment());
+    case USUARIO:
+    	queryBuilder.setTables(UsuarioTable.TABLE_USUARIO);
     	break;
     default:
       throw new IllegalArgumentException("Unknown URI: " + uri);
@@ -107,6 +115,10 @@ public class MyAmigosContentProvider extends ContentProvider {
       id = sqlDB.insert(AmigosTable.TABLE_AMIGOS, null, values);
       getContext().getContentResolver().notifyChange(uri, null);
       return Uri.parse(BASE_PATH1 + "/" + id);
+    case USUARIO:
+  	id = sqlDB.insert(UsuarioTable.TABLE_USUARIO, null, values);
+      getContext().getContentResolver().notifyChange(uri, null);
+      return Uri.parse(BASE_PATH2 + "/" + id);
 	default:
       throw new IllegalArgumentException("Unknown URI: " + uri);
     }
@@ -118,13 +130,14 @@ public class MyAmigosContentProvider extends ContentProvider {
     int uriType = sURIMatcher.match(uri);
     SQLiteDatabase sqlDB = database.getWritableDatabase();
     int rowsDeleted = 0;
+    String id = null;
     switch (uriType) {
     case AMIGOS:
       rowsDeleted = sqlDB.delete(AmigosTable.TABLE_AMIGOS, selection,
           selectionArgs);
       break;
     case AMIGO_ID:
-      String id = uri.getLastPathSegment();
+      id = uri.getLastPathSegment();
       if (TextUtils.isEmpty(selection)) {
         rowsDeleted = sqlDB.delete(AmigosTable.TABLE_AMIGOS,
             AmigosTable.COLUMN_ID + "=" + id, 
@@ -136,6 +149,23 @@ public class MyAmigosContentProvider extends ContentProvider {
             selectionArgs);
       }
       break;
+    case USUARIO:
+        rowsDeleted = sqlDB.delete(UsuarioTable.TABLE_USUARIO, selection,
+            selectionArgs);
+        break;
+    case USUARIO_ID:
+        id = uri.getLastPathSegment();
+        if (TextUtils.isEmpty(selection)) {
+          rowsDeleted = sqlDB.delete(UsuarioTable.TABLE_USUARIO,
+        		  UsuarioTable.COLUMN_ID + "=" + id, 
+              null);
+        } else {
+          rowsDeleted = sqlDB.delete(UsuarioTable.TABLE_USUARIO,
+        		  UsuarioTable.COLUMN_ID + "=" + id 
+              + " and " + selection,
+              selectionArgs);
+        }
+        break;
 
     default:
       throw new IllegalArgumentException("Unknown URI: " + uri);
@@ -151,6 +181,7 @@ public class MyAmigosContentProvider extends ContentProvider {
     int uriType = sURIMatcher.match(uri);
     SQLiteDatabase sqlDB = database.getWritableDatabase();
     int rowsUpdated = 0;
+    String id=null;
     switch (uriType) {
     case AMIGOS:
       rowsUpdated = sqlDB.update(AmigosTable.TABLE_AMIGOS, 
@@ -159,7 +190,7 @@ public class MyAmigosContentProvider extends ContentProvider {
           selectionArgs);
       break;
     case AMIGO_ID:
-      String id = uri.getLastPathSegment();
+      id = uri.getLastPathSegment();
       if (TextUtils.isEmpty(selection)) {
         rowsUpdated = sqlDB.update(AmigosTable.TABLE_AMIGOS, 
             values,
@@ -173,8 +204,31 @@ public class MyAmigosContentProvider extends ContentProvider {
             + selection,
             selectionArgs);
       }
-      break;
       
+      break;
+    case USUARIO:
+    	rowsUpdated = sqlDB.update(UsuarioTable.TABLE_USUARIO, 
+    	          values, 
+    	          selection,
+    	          selectionArgs);
+    	break;
+    case USUARIO_ID:
+        id = uri.getLastPathSegment();
+        if (TextUtils.isEmpty(selection)) {
+          rowsUpdated = sqlDB.update(UsuarioTable.TABLE_USUARIO, 
+              values,
+              UsuarioTable.COLUMN_ID + "=" + id, 
+              null);
+        } else {
+          rowsUpdated = sqlDB.update(UsuarioTable.TABLE_USUARIO, 
+              values,
+              UsuarioTable.COLUMN_ID + "=" + id 
+              + " and " 
+              + selection,
+              selectionArgs);
+        }
+        
+        break;     
     default:
       throw new IllegalArgumentException("Unknown URI: " + uri);
     }
@@ -185,7 +239,8 @@ public class MyAmigosContentProvider extends ContentProvider {
   private void checkColumns(String[] projection) {
     String[] available = { AmigosTable.COLUMN_NOMBRE,
         AmigosTable.COLUMN_APELLIDOS, AmigosTable.COLUMN_TELEFONO,AmigosTable.COLUMN_EMAIL,
-        AmigosTable.COLUMN_SEXO,AmigosTable.COLUMN_LAT, AmigosTable.COLUMN_LONG , AmigosTable.COLUMN_ID };
+        AmigosTable.COLUMN_SEXO,AmigosTable.COLUMN_LAT, AmigosTable.COLUMN_LONG , AmigosTable.COLUMN_ID, AmigosTable.COLUMN_MOSTRAR,
+        UsuarioTable.COLUMN_ID, UsuarioTable.COLUMN_NOMBRE, UsuarioTable.COLUMN_APELLIDOS, UsuarioTable.COLUMN_TELEFONO, UsuarioTable.COLUMN_EMAIL, UsuarioTable.COLUMN_PASSWORD, UsuarioTable.COLUMN_SEXO};
     
     if (projection != null) {
       HashSet<String> requestedColumns = new HashSet<String>(Arrays.asList(projection));

@@ -165,7 +165,7 @@ public class FullscreenActivity extends Activity {
 		Runnable runnable = new Runnable(){
 		public void run(){
 			
-		Intent intent = new Intent(FullscreenActivity.this, MapListActivity.class);
+		Intent intent = new Intent(FullscreenActivity.this, LogActivity.class);
 		startActivity(intent);
 		finish();
 		}

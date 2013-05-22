@@ -107,7 +107,7 @@ public class MapListActivity extends FragmentActivity implements LocationListene
         tSpecAmigos.setContent(R.id.tab2);
         tHost.addTab(tSpecAmigos);
         
-        //addAmigo();
+        addAmigo();
         extrasMapa();
 		marcarAmigos();
      }
@@ -142,7 +142,7 @@ public class MapListActivity extends FragmentActivity implements LocationListene
 	public void marcarAmigos(){
 		
 		Cursor cursor = null;
-		String[] projection = { AmigosTable.COLUMN_ID, AmigosTable.COLUMN_NOMBRE, AmigosTable.COLUMN_APELLIDOS, AmigosTable.COLUMN_LAT, AmigosTable.COLUMN_LONG, AmigosTable.COLUMN_SEXO };
+		String[] projection = { AmigosTable.COLUMN_ID, AmigosTable.COLUMN_NOMBRE, AmigosTable.COLUMN_APELLIDOS, AmigosTable.COLUMN_LAT, AmigosTable.COLUMN_LONG, AmigosTable.COLUMN_SEXO, AmigosTable.COLUMN_MOSTRAR };
 		cursor = getContentResolver().query(MyAmigosContentProvider.CONTENT_URI1, projection, null, null,
 		        null);   
 		    if (cursor!=null) {
@@ -173,9 +173,7 @@ public class MapListActivity extends FragmentActivity implements LocationListene
 	}
 	
 	public void addAmigo(){
-		
-		Cursor cursor = null;
-		String[] projection = { AmigosTable.COLUMN_ID, AmigosTable.COLUMN_NOMBRE, AmigosTable.COLUMN_APELLIDOS, AmigosTable.COLUMN_LAT, AmigosTable.COLUMN_LONG, AmigosTable.COLUMN_SEXO };
+
 		//cursor = getContentResolver().query(MyAmigosContentProvider.CONTENT_URI1, projection, null, null,
 		//        null);   
 		String nombre = "Carlos";

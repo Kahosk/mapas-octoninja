@@ -30,7 +30,7 @@ public class AmigosTable {
 	      + COLUMN_SEXO + " integer not null,"
 	      + COLUMN_LAT + " double,"
 	      + COLUMN_LONG + " double,"
-	      + COLUMN_MOSTRAR + " integer not null" 
+	      + COLUMN_MOSTRAR + " integer" 
 	      + ");";
 
 	  public static void onCreate(SQLiteDatabase database) {
