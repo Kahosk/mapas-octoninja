@@ -5,11 +5,16 @@ import map.ambimetrics.ambiguay_android.util.SystemUiHider;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.MotionEvent;
 import android.view.View;
+
+import map.ambimetrics.contentprovider.MyAmigosContentProvider;
+import map.ambimetrics.database.AmigosTable;
+import map.ambimetrics.database.UsuarioTable;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -18,6 +23,8 @@ import android.view.View;
  * @see SystemUiHider
  */
 public class FullscreenActivity extends Activity {
+	//private static final String URL = "http://192.168.0.153/Ambiway/";
+	//private String Respuesta = null;
 	
 	private static final long SPLASH_DISPLAY_LENGTH = 500;
 	/**
@@ -163,13 +170,33 @@ public class FullscreenActivity extends Activity {
 	}
 	private Runnable getRunnableStartApp(){
 		Runnable runnable = new Runnable(){
-		public void run(){
-			
-		Intent intent = new Intent(FullscreenActivity.this, LogActivity.class);
-		startActivity(intent);
-		finish();
-		}
+			public void run(){
+				Intent intent = null;
+				if (usuario()){
+					intent = new Intent(FullscreenActivity.this, MapListActivity.class);
+				}else{
+					intent = new Intent(FullscreenActivity.this, LogActivity.class);
+				}
+				startActivity(intent);
+				finish();
+			}
 		};
 		return runnable;
+	}
+	public Boolean usuario(){
+		Boolean esta = false;
+		Cursor cursor = null;
+		String[] projection = { UsuarioTable.COLUMN_ID, UsuarioTable.COLUMN_NOMBRE, UsuarioTable.COLUMN_APELLIDOS};
+		cursor = getContentResolver().query(MyAmigosContentProvider.CONTENT_URI2, projection, null, null,
+		        null);   
+		if (cursor!=null) {
+			if (cursor.moveToFirst()) 
+		    	esta = true;
 		}
+		return esta;
+	}
+		
+	
+
+	
 }

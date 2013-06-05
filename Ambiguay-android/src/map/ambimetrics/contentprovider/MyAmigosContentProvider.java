@@ -116,7 +116,7 @@ public class MyAmigosContentProvider extends ContentProvider {
       getContext().getContentResolver().notifyChange(uri, null);
       return Uri.parse(BASE_PATH1 + "/" + id);
     case USUARIO:
-  	id = sqlDB.insert(UsuarioTable.TABLE_USUARIO, null, values);
+      id = sqlDB.insert(UsuarioTable.TABLE_USUARIO, null, values);
       getContext().getContentResolver().notifyChange(uri, null);
       return Uri.parse(BASE_PATH2 + "/" + id);
 	default:
@@ -240,7 +240,7 @@ public class MyAmigosContentProvider extends ContentProvider {
     String[] available = { AmigosTable.COLUMN_NOMBRE,
         AmigosTable.COLUMN_APELLIDOS, AmigosTable.COLUMN_TELEFONO,AmigosTable.COLUMN_EMAIL,
         AmigosTable.COLUMN_SEXO,AmigosTable.COLUMN_LAT, AmigosTable.COLUMN_LONG , AmigosTable.COLUMN_ID, AmigosTable.COLUMN_MOSTRAR,
-        UsuarioTable.COLUMN_ID, UsuarioTable.COLUMN_NOMBRE, UsuarioTable.COLUMN_APELLIDOS, UsuarioTable.COLUMN_TELEFONO, UsuarioTable.COLUMN_EMAIL, UsuarioTable.COLUMN_PASSWORD, UsuarioTable.COLUMN_SEXO};
+        UsuarioTable.COLUMN_ID, UsuarioTable.COLUMN_NOMBRE, UsuarioTable.COLUMN_APELLIDOS, UsuarioTable.COLUMN_TELEFONO, UsuarioTable.COLUMN_TOKEN};
     
     if (projection != null) {
       HashSet<String> requestedColumns = new HashSet<String>(Arrays.asList(projection));

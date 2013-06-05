@@ -3,8 +3,10 @@ package map.ambimetrics.ambiguay_android;
 import map.ambimetrics.comunicacion.RequestMethod;
 import map.ambimetrics.comunicacion.RestClient;
 import map.ambimetrics.contentprovider.MyAmigosContentProvider;
+import map.ambimetrics.database.AmigosTable;
 import map.ambimetrics.database.UsuarioTable;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -12,6 +14,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -40,8 +43,6 @@ public class LogActivity extends Activity {
 	 * A dummy authentication store containing known user names and passwords.
 	 * TODO: remove after connecting to a real authentication system.
 	 */
-	//private static final String[] DUMMY_CREDENTIALS = new String[] {
-	//		"foo@example.com:hello", "bar@example.com:world" };
 
 	/**
 	 * The default email to populate the email field with.
@@ -174,7 +175,7 @@ public class LogActivity extends Activity {
 			mPasswordView.setError(getString(R.string.error_field_required));
 			focusView = mPasswordView;
 			cancel = true;
-		} else if (mPassword.length() < 4) {
+		} else if (mPassword.length() < 3) {
 			mPasswordView.setError(getString(R.string.error_invalid_password));
 			focusView = mPasswordView;
 			cancel = true;
@@ -267,10 +268,49 @@ public class LogActivity extends Activity {
 			showProgress(false);
 			try {
 			if (success) {
-				int error = respuestaJSON(new JSONObject(Respuesta));
+				JSONObject datos = new JSONObject(Respuesta);
+
+				int error = respuestaJSON(datos);
+				Intent intent = null;
 				switch (error) {
 			    case 0: //correcto
-			    	Intent intent = new Intent(LogActivity.this, MapListActivity.class);
+			    	
+			    	
+
+			    	
+			    	String token = datos.getString(UsuarioTable.COLUMN_TOKEN);
+			    	JSONObject usuario = datos.getJSONObject(UsuarioTable.TABLE_USUARIO);
+			    	String nombreU = usuario.getString(UsuarioTable.COLUMN_NOMBRE);
+			    	String apellidosU = usuario.getString(UsuarioTable.COLUMN_APELLIDOS);
+			    	String telefonoU = usuario.getString(UsuarioTable.COLUMN_TELEFONO);
+	    			Toast toast1 = Toast.makeText(getApplicationContext(),
+	    					"Bienvenido "+nombreU, Toast.LENGTH_LONG);
+	     
+	    			toast1.show();			    	
+		
+			    	SaveUsuario(nombreU, apellidosU, telefonoU, token);
+			    	
+			    	JSONArray amigos = datos.getJSONArray("listaAmigos");
+
+		    		for(int i = 0; i < amigos.length(); i++){
+		    			JSONObject a = amigos.getJSONObject(i);
+		    			a.toString();
+		    			
+		    			String nombre = a.getString(AmigosTable.COLUMN_NOMBRE);
+		    			String apellidos = a.getString(AmigosTable.COLUMN_APELLIDOS);
+		    			String telefono = a.getString(AmigosTable.COLUMN_TELEFONO);
+		    			//String email = a.getString(AmigosTable.COLUMN_EMAIL);
+		    			String email = "no";
+		    			String sexo = a.getString(AmigosTable.COLUMN_SEXO);
+		    			String lat = a.getString(AmigosTable.COLUMN_LAT);
+		    			String longitud = a.getString(AmigosTable.COLUMN_LONG);
+		    			String mostrar = "1";
+
+		    			addAmigo(nombre,apellidos,telefono,email,sexo,lat,longitud,mostrar);
+		    		}
+		    		
+
+			    	intent = new Intent(LogActivity.this, MapListActivity.class);
 			    	startActivity(intent);
 			    	finish();
 					break;
@@ -281,13 +321,19 @@ public class LogActivity extends Activity {
 					break;
 			    case 2: //password incorrecto
 					mPasswordView
-					.setError("Password incorrecto");
+					.setError(getString(R.string.error_incorrect_password));
 					mPasswordView.requestFocus();
 					break;
 			    case 3: //usuario no registrado
+					//intent 
+			    	/*
+			    	intent = new Intent(LogActivity.this, FullscreenActivity.class);
+			    	startActivity(intent);
+			    	finish();
+			    	*/
 					mPasswordView
-					.setError(getString(R.string.error_incorrect_password));
-					mPasswordView.requestFocus();
+					.setError("3");
+			mPasswordView.requestFocus();
 					break;
 				default:
 					mPasswordView
@@ -355,5 +401,58 @@ public class LogActivity extends Activity {
 		}
         return resp;
 	
+	}
+	private void SaveUsuario(String nombre, String apellidos, String telefono, String token){
+    	
+			/*
+			datos.toString(); //Para obtener la cadena de texto de tipo JSON
+	    	String token = datos.getString("token");
+	    	String nombre = datos.getString("nombre");
+	    	String apellidos = datos.getString("apellidos");
+	    	String telefono = datos.getString("telefono");
+	    	*/
+    		ContentValues values = new ContentValues();
+    	    values.put(UsuarioTable.COLUMN_NOMBRE, nombre);
+    	    values.put(UsuarioTable.COLUMN_APELLIDOS, apellidos);
+    	    values.put(UsuarioTable.COLUMN_TELEFONO, telefono);
+    	    values.put(UsuarioTable.COLUMN_TOKEN, "asdf");
+    	    
+    	    Uri usuario = getContentResolver().insert(MyAmigosContentProvider.CONTENT_URI2, values);
+
+	}
+	public void addAmigo(String nombre, String apellidos, String telefono,
+	String email, String sexo, String lat, String longitud, String mostrar) {
+		
+
+			/*
+			String nombre = a.getString(AmigosTable.COLUMN_NOMBRE);
+			String apellidos = a.getString(AmigosTable.COLUMN_APELLIDOS);
+			String telefono = a.getString(AmigosTable.COLUMN_TELEFONO);
+			String email = a.getString(AmigosTable.COLUMN_EMAIL);
+			String sexo = a.getString(AmigosTable.COLUMN_SEXO);
+			String lat = a.getString(AmigosTable.COLUMN_LAT);
+			String longitud = a.getString(AmigosTable.COLUMN_LONG);
+			String mostrar = "1";
+			*/
+
+			ContentValues values = new ContentValues();
+		    values.put(AmigosTable.COLUMN_NOMBRE, nombre);
+		    values.put(AmigosTable.COLUMN_APELLIDOS, apellidos);
+		    values.put(AmigosTable.COLUMN_TELEFONO, telefono);
+		    values.put(AmigosTable.COLUMN_EMAIL, email);
+		    values.put(AmigosTable.COLUMN_SEXO, sexo);
+		    if (lat.equals("null") || longitud.equals("null")){
+		    	values.put(AmigosTable.COLUMN_LAT, "0");
+			    values.put(AmigosTable.COLUMN_LONG, "0");
+		    }else{
+		    values.put(AmigosTable.COLUMN_LAT, lat);
+		    values.put(AmigosTable.COLUMN_LONG, longitud);
+		    }
+		    values.put(AmigosTable.COLUMN_MOSTRAR, mostrar);
+			 
+		 
+		    Uri amigo = getContentResolver().insert(MyAmigosContentProvider.CONTENT_URI1, values);
+		    
+		
 	}
 }

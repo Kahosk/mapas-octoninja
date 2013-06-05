@@ -14,6 +14,7 @@ public class UsuarioTable {
   public static final String COLUMN_EMAIL = "email";
   public static final String COLUMN_PASSWORD = "password";
   public static final String COLUMN_SEXO = "sexo";
+  public static final String COLUMN_TOKEN = "token";
   
   // Database creation SQL statement
   private static final String DATABASE_CREATE = "create table " 
@@ -23,9 +24,7 @@ public class UsuarioTable {
       + COLUMN_NOMBRE + " text not null, " 
       + COLUMN_APELLIDOS + " text not null," 
       + COLUMN_TELEFONO + " text," 
-      + COLUMN_EMAIL + " text not null,"
-      + COLUMN_PASSWORD + " text not null,"
-      + COLUMN_SEXO + " integer not null"
+      + COLUMN_TOKEN + " text"
       + ");";
 
   public static void onCreate(SQLiteDatabase database) {

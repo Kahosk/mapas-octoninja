@@ -26,7 +26,7 @@ public class AmigosTable {
 	      + COLUMN_NOMBRE + " text not null, " 
 	      + COLUMN_APELLIDOS + " text not null," 
 	      + COLUMN_TELEFONO + " text," 
-	      + COLUMN_EMAIL + " text not null,"
+	      + COLUMN_EMAIL + " text,"
 	      + COLUMN_SEXO + " integer not null,"
 	      + COLUMN_LAT + " double,"
 	      + COLUMN_LONG + " double,"

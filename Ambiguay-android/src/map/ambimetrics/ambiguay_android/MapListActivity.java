@@ -2,6 +2,7 @@ package map.ambimetrics.ambiguay_android;
 
 import map.ambimetrics.contentprovider.MyAmigosContentProvider;
 import map.ambimetrics.database.AmigosTable;
+import map.ambimetrics.database.UsuarioTable;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.location.Location;
@@ -107,9 +108,10 @@ public class MapListActivity extends FragmentActivity implements LocationListene
         tSpecAmigos.setContent(R.id.tab2);
         tHost.addTab(tSpecAmigos);
         
-        addAmigo();
+        //addAmigo();
         extrasMapa();
 		marcarAmigos();
+
      }
 
 
@@ -138,7 +140,7 @@ public class MapListActivity extends FragmentActivity implements LocationListene
         .position(new LatLng(lat, lng))
         .title(titulo).icon(BitmapDescriptorFactory.defaultMarker(color)));
 	}
-    
+
 	public void marcarAmigos(){
 		
 		Cursor cursor = null;
