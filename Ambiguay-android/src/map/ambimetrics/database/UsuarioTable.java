@@ -22,7 +22,9 @@ public class UsuarioTable {
       + "(" 
       + COLUMN_ID + " integer primary key autoincrement, " 
       + COLUMN_NOMBRE + " text not null, " 
-      + COLUMN_APELLIDOS + " text not null," 
+      + COLUMN_APELLIDOS + " text not null,"
+      + COLUMN_EMAIL + " text not null," 
+      + COLUMN_PASSWORD + " text not null," 
       + COLUMN_TELEFONO + " text," 
       + COLUMN_TOKEN + " text"
       + ");";

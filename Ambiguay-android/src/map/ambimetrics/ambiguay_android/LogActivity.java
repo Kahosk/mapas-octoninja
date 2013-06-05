@@ -287,7 +287,7 @@ public class LogActivity extends Activity {
 	    					"Bienvenido "+nombreU, Toast.LENGTH_LONG);
 	     
 	    			toast1.show();			    	
-		
+
 			    	SaveUsuario(nombreU, apellidosU, telefonoU, token);
 			    	
 			    	JSONArray amigos = datos.getJSONArray("listaAmigos");
@@ -415,7 +415,9 @@ public class LogActivity extends Activity {
     	    values.put(UsuarioTable.COLUMN_NOMBRE, nombre);
     	    values.put(UsuarioTable.COLUMN_APELLIDOS, apellidos);
     	    values.put(UsuarioTable.COLUMN_TELEFONO, telefono);
-    	    values.put(UsuarioTable.COLUMN_TOKEN, "asdf");
+    	    values.put(UsuarioTable.COLUMN_TOKEN, token);
+    	    values.put(UsuarioTable.COLUMN_EMAIL, mEmail);
+    	    values.put(UsuarioTable.COLUMN_PASSWORD, mPassword);
     	    
     	    Uri usuario = getContentResolver().insert(MyAmigosContentProvider.CONTENT_URI2, values);
 

@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class AmigosDatabaseHelper extends SQLiteOpenHelper {
 
   private static final String DATABASE_NAME = "amigostable.db";
-  private static final int DATABASE_VERSION = 18;
+  private static final int DATABASE_VERSION = 19;
 
   public AmigosDatabaseHelper(Context context) {
     super(context, DATABASE_NAME, null, DATABASE_VERSION);

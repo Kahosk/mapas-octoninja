@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.widget.TabHost;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -48,6 +49,8 @@ public class MapListActivity extends FragmentActivity implements LocationListene
 			
 			@Override
 			public void onTabChanged(String tabId) {
+				
+				usuarioToken();
 				android.support.v4.app.FragmentManager fm =   getSupportFragmentManager();
 				//MapaFragment mapFragment = (MapaFragment) fm.findFragmentByTag("map");
 				
@@ -175,7 +178,7 @@ public class MapListActivity extends FragmentActivity implements LocationListene
 	}
 	
 	public void addAmigo(){
-
+		//PRUEBAS
 		//cursor = getContentResolver().query(MyAmigosContentProvider.CONTENT_URI1, projection, null, null,
 		//        null);   
 		String nombre = "Carlos";
@@ -222,9 +225,37 @@ public class MapListActivity extends FragmentActivity implements LocationListene
 		 
 	 
 	    amigoUri = getContentResolver().insert(MyAmigosContentProvider.CONTENT_URI1, values);
-	    
+	   //PRUEBAS 
 	}
-   
+	
+	public void usuarioToken(){
+		//Actualizar
+		//1 Buscar token
+		Cursor cursor = null;
+		String[] projection = { UsuarioTable.COLUMN_ID, UsuarioTable.COLUMN_NOMBRE, UsuarioTable.COLUMN_TOKEN};
+		cursor = getContentResolver().query(MyAmigosContentProvider.CONTENT_URI2, projection, null, null,
+		        null);
+		String token = null;
+		if (cursor!=null) {
+			if (cursor.moveToFirst()) 
+		    	token = cursor.getString(cursor
+		                .getColumnIndexOrThrow(UsuarioTable.COLUMN_TOKEN));
+		}
+		//2 Petición actualizar
+		if (token!=null){
+		Toast toast1 = Toast.makeText(getApplicationContext(),
+				token, Toast.LENGTH_LONG);
+
+		toast1.show();}
+		else{
+			Toast toast1 = Toast.makeText(getApplicationContext(),
+					"No se ha podido actualizar" , Toast.LENGTH_LONG);
+
+			toast1.show();
+		}
+		
+	}
+	
 
 	@Override
 	public void onLocationChanged(Location location) {

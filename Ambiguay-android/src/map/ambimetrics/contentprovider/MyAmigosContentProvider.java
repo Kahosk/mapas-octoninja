@@ -240,7 +240,7 @@ public class MyAmigosContentProvider extends ContentProvider {
     String[] available = { AmigosTable.COLUMN_NOMBRE,
         AmigosTable.COLUMN_APELLIDOS, AmigosTable.COLUMN_TELEFONO,AmigosTable.COLUMN_EMAIL,
         AmigosTable.COLUMN_SEXO,AmigosTable.COLUMN_LAT, AmigosTable.COLUMN_LONG , AmigosTable.COLUMN_ID, AmigosTable.COLUMN_MOSTRAR,
-        UsuarioTable.COLUMN_ID, UsuarioTable.COLUMN_NOMBRE, UsuarioTable.COLUMN_APELLIDOS, UsuarioTable.COLUMN_TELEFONO, UsuarioTable.COLUMN_TOKEN};
+        UsuarioTable.COLUMN_ID, UsuarioTable.COLUMN_NOMBRE, UsuarioTable.COLUMN_APELLIDOS, UsuarioTable.COLUMN_TELEFONO, UsuarioTable.COLUMN_TOKEN, UsuarioTable.COLUMN_EMAIL, UsuarioTable.COLUMN_PASSWORD };
     
     if (projection != null) {
       HashSet<String> requestedColumns = new HashSet<String>(Arrays.asList(projection));
