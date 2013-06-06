@@ -1,13 +1,22 @@
 package map.ambimetrics.ambiguay_android;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+
+import map.ambimetrics.comunicacion.RequestMethod;
+import map.ambimetrics.comunicacion.RestClient;
 import map.ambimetrics.contentprovider.MyAmigosContentProvider;
 import map.ambimetrics.database.AmigosTable;
 import map.ambimetrics.database.UsuarioTable;
 import android.content.ContentValues;
+import android.content.Intent;
 import android.database.Cursor;
 import android.location.Location;
 import android.location.LocationListener;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.widget.TabHost;
@@ -27,10 +36,17 @@ import com.google.android.gms.maps.model.MarkerOptions;
 public class MapListActivity extends FragmentActivity implements LocationListener  {
 	TabHost tHost;
 	
+	private static final String URL = "http://192.168.0.153/Ambiway/";
+	private String Respuesta = null;
+	private String EmailU = null;
+	private String TokenU = null;
+	private double dLatitude = 0;
+    private double dLongitude = 0;
+	
 	private GoogleMap mapa = null;
-
 	
 	public Uri amigoUri = null;
+
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -49,8 +65,7 @@ public class MapListActivity extends FragmentActivity implements LocationListene
 			
 			@Override
 			public void onTabChanged(String tabId) {
-				
-				usuarioToken();
+
 				android.support.v4.app.FragmentManager fm =   getSupportFragmentManager();
 				//MapaFragment mapFragment = (MapaFragment) fm.findFragmentByTag("map");
 				
@@ -58,6 +73,7 @@ public class MapListActivity extends FragmentActivity implements LocationListene
 				mapa = mapFragment.getMap();
 				mapa.clear();
 				extrasMapa();
+				usuarioToken();
 				marcarAmigos();
 			
 				AmigosFragment amigosFragment = (AmigosFragment) fm.findFragmentByTag("amigos");
@@ -112,8 +128,10 @@ public class MapListActivity extends FragmentActivity implements LocationListene
         tHost.addTab(tSpecAmigos);
         
         //addAmigo();
-        extrasMapa();
-		marcarAmigos();
+        //extrasMapa();
+        
+	
+		//marcarAmigos();
 
      }
 
@@ -125,9 +143,19 @@ public class MapListActivity extends FragmentActivity implements LocationListene
 		UiSettings UI =mapa.getUiSettings();
 		
 		UI.setMyLocationButtonEnabled(mapa.isMyLocationEnabled());
+		
+		Location myLocation  = mapa.getMyLocation();
 
-    	
-    	
+	    if(myLocation!=null)
+	    {
+	        dLatitude = myLocation.getLatitude();
+	        dLongitude = myLocation.getLongitude();
+	    }else{
+	    	Toast toast1 = Toast.makeText(getApplicationContext(),
+					"No es posible obtener tu posición", Toast.LENGTH_LONG);
+
+			toast1.show();	
+	    }
     }
     
 	public void mostrarMarcador(double lat, double lng, String titulo, int sexo)
@@ -232,22 +260,27 @@ public class MapListActivity extends FragmentActivity implements LocationListene
 		//Actualizar
 		//1 Buscar token
 		Cursor cursor = null;
-		String[] projection = { UsuarioTable.COLUMN_ID, UsuarioTable.COLUMN_NOMBRE, UsuarioTable.COLUMN_TOKEN};
+		String[] projection = { UsuarioTable.COLUMN_ID, UsuarioTable.COLUMN_EMAIL, UsuarioTable.COLUMN_TOKEN};
 		cursor = getContentResolver().query(MyAmigosContentProvider.CONTENT_URI2, projection, null, null,
 		        null);
-		String token = null;
 		if (cursor!=null) {
-			if (cursor.moveToFirst()) 
-		    	token = cursor.getString(cursor
+			if (cursor.moveToFirst()) {
+		    	TokenU = cursor.getString(cursor
 		                .getColumnIndexOrThrow(UsuarioTable.COLUMN_TOKEN));
+		    	EmailU = cursor.getString(cursor
+	                .getColumnIndexOrThrow(UsuarioTable.COLUMN_EMAIL));
+			}
 		}
 		//2 Petición actualizar
-		if (token!=null){
-		Toast toast1 = Toast.makeText(getApplicationContext(),
-				token, Toast.LENGTH_LONG);
+		if (TokenU!=null && EmailU!=null){
+		//End IF
+			Toast toast1 = Toast.makeText(getApplicationContext(),
+					"En proceso..." , Toast.LENGTH_SHORT);
 
-		toast1.show();}
-		else{
+			toast1.show();
+			new DownloadDataTask().execute();
+			
+		}else{
 			Toast toast1 = Toast.makeText(getApplicationContext(),
 					"No se ha podido actualizar" , Toast.LENGTH_LONG);
 
@@ -255,7 +288,52 @@ public class MapListActivity extends FragmentActivity implements LocationListene
 		}
 		
 	}
+	private void sendJSON(){
+	    
+	    JSONObject cadena = new JSONObject(); //Creamos un objeto de tipo JSON
+    	
+		try { 
+	  		cadena.put("tag", "actualizar");
+	  		cadena.put("email", "pepe@email.com");
+	  		cadena.put("token", "d2c287eed3d595d636125cd41ac76a4c");
+		    cadena.put("latitud",  "0");
+		    cadena.put("longitud", "0");
+		   
+	  		//Le asignamos los datos que necesitemos
+		}catch (JSONException e) {
+        	e.printStackTrace();
+        }		
+		
+		RestClient client = new RestClient(URL);
+		client.AddParam("JSON", cadena.toString());
+		Respuesta = client.getResponse();
+
+
+		try {
+		    client.Execute(RequestMethod.POST);
+					    
+		} catch (Exception e) {
+		    e.printStackTrace();
+		}
+		
+		Respuesta = client.getResponse();
 	
+		
+	}
+	
+	private int respuestaJSON(JSONObject cadena){
+        cadena.toString(); //Para obtener la cadena de texto de tipo JSON
+        int resp = 1;
+        try {
+        	String error = cadena.getString("error");
+        	resp = Integer.parseInt(error);
+        } catch (JSONException e) {
+        	// TODO Auto-generated catch block
+        	e.printStackTrace();
+		}
+        return resp;
+	
+	}
 
 	@Override
 	public void onLocationChanged(Location location) {
@@ -282,9 +360,22 @@ public class MapListActivity extends FragmentActivity implements LocationListene
 	public void onStatusChanged(String provider, int status, Bundle extras) {
 		// TODO Auto-generated method stub
 		
-	}   
+	}
+	
+	 private class DownloadDataTask extends AsyncTask<Void, Void, Boolean> {
+	     protected Boolean doInBackground(Void... params) {
+
+	    	 sendJSON();
+			return true;
+	     }
+	     @Override
+	     protected void onPostExecute(final Boolean success) {
+		 		if (success){
+		 			Toast toast2 = Toast.makeText(getApplicationContext(),
+						Respuesta, Toast.LENGTH_LONG);
+				toast2.show();
+		 		}
+	     }
+	 }
     
-
- 	
-}
-
+}	
