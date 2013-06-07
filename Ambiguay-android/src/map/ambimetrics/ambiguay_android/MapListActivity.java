@@ -40,8 +40,8 @@ public class MapListActivity extends FragmentActivity implements LocationListene
 	private String Respuesta = null;
 	private String EmailU = null;
 	private String TokenU = null;
-	private double dLatitude = 0;
-    private double dLongitude = 0;
+	private double dLatitude = 90;
+    private double dLongitude = 90;
 	
 	private GoogleMap mapa = null;
 	
@@ -71,10 +71,8 @@ public class MapListActivity extends FragmentActivity implements LocationListene
 				
 				com.google.android.gms.maps.SupportMapFragment mapFragment = (SupportMapFragment)fm.findFragmentById(R.id.mapa);
 				mapa = mapFragment.getMap();
-				mapa.clear();
-				extrasMapa();
-				usuarioToken();
-				marcarAmigos();
+
+				
 			
 				AmigosFragment amigosFragment = (AmigosFragment) fm.findFragmentByTag("amigos");
 				android.support.v4.app.FragmentTransaction ft = fm.beginTransaction();
@@ -94,8 +92,12 @@ public class MapListActivity extends FragmentActivity implements LocationListene
 						ft.attach(mapFragment);						
 
 				}else{	/** If current tab is amigos */
+					mapa.clear();
+					extrasMapa();
+					usuarioToken();
 					if(amigosFragment==null){
 						/** Create AmigosFragment and adding to fragment transaction */
+						
 						ft.add(R.id.realtabcontent2,new AmigosFragment(), "amigos");						
 					}else{
 						/** Bring to the front, if already exists in the fragment transaction */
@@ -129,9 +131,10 @@ public class MapListActivity extends FragmentActivity implements LocationListene
         
         //addAmigo();
         //extrasMapa();
-        
-	
-		//marcarAmigos();
+        mapa.clear();
+		extrasMapa();
+        	
+		marcarAmigos();
 
      }
 
@@ -151,10 +154,12 @@ public class MapListActivity extends FragmentActivity implements LocationListene
 	        dLatitude = myLocation.getLatitude();
 	        dLongitude = myLocation.getLongitude();
 	    }else{
+	    	/*
 	    	Toast toast1 = Toast.makeText(getApplicationContext(),
-					"No es posible obtener tu posición", Toast.LENGTH_LONG);
+					"No es posible actualizar", Toast.LENGTH_LONG);
 
-			toast1.show();	
+			toast1.show();
+			*/	
 	    }
     }
     
@@ -204,56 +209,41 @@ public class MapListActivity extends FragmentActivity implements LocationListene
 		    }
 		
 	}
-	
-	public void addAmigo(){
-		//PRUEBAS
-		//cursor = getContentResolver().query(MyAmigosContentProvider.CONTENT_URI1, projection, null, null,
-		//        null);   
-		String nombre = "Carlos";
-		String apellidos = "Mas";
-		String telefono = "123456";
-		String email = "takato1@gmail.com";
-		String sexo = "1";
-		String lat = "39.9766";
-		String longitud = "-0.0584";
-		String mostrar = "1";
+
+	public void addAmigo(String nombre, String apellidos, String telefono,
+	String email, String sexo, String lat, String longitud, String mostrar) {
 		
-		ContentValues values = new ContentValues();
-	    values.put(AmigosTable.COLUMN_NOMBRE, nombre);
-	    values.put(AmigosTable.COLUMN_APELLIDOS, apellidos);
-	    values.put(AmigosTable.COLUMN_TELEFONO, telefono);
-	    values.put(AmigosTable.COLUMN_EMAIL, email);
-	    values.put(AmigosTable.COLUMN_SEXO, sexo);
-	    values.put(AmigosTable.COLUMN_LAT, lat);
-	    values.put(AmigosTable.COLUMN_LONG, longitud);
-	    values.put(AmigosTable.COLUMN_MOSTRAR, mostrar);
+
+			/*
+			String nombre = a.getString(AmigosTable.COLUMN_NOMBRE);
+			String apellidos = a.getString(AmigosTable.COLUMN_APELLIDOS);
+			String telefono = a.getString(AmigosTable.COLUMN_TELEFONO);
+			String email = a.getString(AmigosTable.COLUMN_EMAIL);
+			String sexo = a.getString(AmigosTable.COLUMN_SEXO);
+			String lat = a.getString(AmigosTable.COLUMN_LAT);
+			String longitud = a.getString(AmigosTable.COLUMN_LONG);
+			String mostrar = "1";
+			*/
+
+			ContentValues values = new ContentValues();
+		    values.put(AmigosTable.COLUMN_NOMBRE, nombre);
+		    values.put(AmigosTable.COLUMN_APELLIDOS, apellidos);
+		    values.put(AmigosTable.COLUMN_TELEFONO, telefono);
+		    values.put(AmigosTable.COLUMN_EMAIL, email);
+		    values.put(AmigosTable.COLUMN_SEXO, sexo);
+		    if (lat.equals("null") || longitud.equals("null")){
+		    	values.put(AmigosTable.COLUMN_LAT, "90");
+			    values.put(AmigosTable.COLUMN_LONG, "90");
+		    }else{
+		    values.put(AmigosTable.COLUMN_LAT, lat);
+		    values.put(AmigosTable.COLUMN_LONG, longitud);
+		    }
+		    values.put(AmigosTable.COLUMN_MOSTRAR, mostrar);
+			 
 		 
-	 
-	    amigoUri = getContentResolver().insert(MyAmigosContentProvider.CONTENT_URI1, values);
-	    
-	    //39,9859, -0,0534
-		nombre = "Estela";
-		apellidos = "Ibañez";
-		telefono = "123456";
-		email = "estela@gmail.com";
-		sexo = "2";
-		lat = "39.9859";
-		longitud = "-0.0534";
-		mostrar = "1";
+		    Uri amigo = getContentResolver().insert(MyAmigosContentProvider.CONTENT_URI1, values);
+		    
 		
-		values = new ContentValues();
-	    values.put(AmigosTable.COLUMN_NOMBRE, nombre);
-	    values.put(AmigosTable.COLUMN_APELLIDOS, apellidos);
-	    values.put(AmigosTable.COLUMN_TELEFONO, telefono);
-	    values.put(AmigosTable.COLUMN_EMAIL, email);
-	    values.put(AmigosTable.COLUMN_SEXO, sexo);
-	    values.put(AmigosTable.COLUMN_LAT, lat);
-	    values.put(AmigosTable.COLUMN_LONG, longitud);
-	    values.put(AmigosTable.COLUMN_MOSTRAR, mostrar);
-		 
-	 
-	    amigoUri = getContentResolver().insert(MyAmigosContentProvider.CONTENT_URI1, values);
-	   //PRUEBAS 
 	}
 	
 	public void usuarioToken(){
@@ -272,19 +262,15 @@ public class MapListActivity extends FragmentActivity implements LocationListene
 			}
 		}
 		//2 Petición actualizar
-		if (TokenU!=null && EmailU!=null){
-		//End IF
+		if ((TokenU!=null && EmailU!=null) && (dLongitude!=90 && dLatitude!=90)){
+			/*
 			Toast toast1 = Toast.makeText(getApplicationContext(),
 					"En proceso..." , Toast.LENGTH_SHORT);
 
 			toast1.show();
+			*/
 			new DownloadDataTask().execute();
 			
-		}else{
-			Toast toast1 = Toast.makeText(getApplicationContext(),
-					"No se ha podido actualizar" , Toast.LENGTH_LONG);
-
-			toast1.show();
 		}
 		
 	}
@@ -294,10 +280,10 @@ public class MapListActivity extends FragmentActivity implements LocationListene
     	
 		try { 
 	  		cadena.put("tag", "actualizar");
-	  		cadena.put("email", "pepe@email.com");
-	  		cadena.put("token", "d2c287eed3d595d636125cd41ac76a4c");
-		    cadena.put("latitud",  "0");
-		    cadena.put("longitud", "0");
+	  		cadena.put("email", EmailU);
+	  		cadena.put("token", TokenU);
+		    cadena.put("latitud",  dLatitude);
+		    cadena.put("longitud", dLongitude);
 		   
 	  		//Le asignamos los datos que necesitemos
 		}catch (JSONException e) {
@@ -370,11 +356,72 @@ public class MapListActivity extends FragmentActivity implements LocationListene
 	     }
 	     @Override
 	     protected void onPostExecute(final Boolean success) {
+	    	 try {
 		 		if (success){
+		 			/*
 		 			Toast toast2 = Toast.makeText(getApplicationContext(),
 						Respuesta, Toast.LENGTH_LONG);
 				toast2.show();
+				*/
+	    	 	JSONObject datos = new JSONObject(Respuesta);
+	    	 	Intent intent = null;
+				int error = respuestaJSON(datos);
+				switch (error) {
+					case 0:
+						//Eliminar
+						getContentResolver().delete(MyAmigosContentProvider.CONTENT_URI1, null, null);
+						
+						//Insertar
+						JSONArray amigos = datos.getJSONArray("listaAmigos");
+
+			    		for(int i = 0; i < amigos.length(); i++){
+			    			JSONObject a = amigos.getJSONObject(i);
+			    			a.toString();
+			    			
+			    			String nombre = a.getString(AmigosTable.COLUMN_NOMBRE);
+			    			String apellidos = a.getString(AmigosTable.COLUMN_APELLIDOS);
+			    			String telefono = a.getString(AmigosTable.COLUMN_TELEFONO);
+			    			//String email = a.getString(AmigosTable.COLUMN_EMAIL);
+			    			String email = "no";
+			    			String sexo = a.getString(AmigosTable.COLUMN_SEXO);
+			    			String lat = a.getString(AmigosTable.COLUMN_LAT);
+			    			String longitud = a.getString(AmigosTable.COLUMN_LONG);
+			    			String mostrar = "1";
+
+			    			addAmigo(nombre,apellidos,telefono,email,sexo,lat,longitud,mostrar);
+			    		}
+			    		marcarAmigos();
+						break;
+					case 1:
+						Toast ToastFallo = Toast.makeText(getApplicationContext(),
+								"Fallo del servidor", Toast.LENGTH_LONG);
+						ToastFallo.show();
+						intent = new Intent(MapListActivity.this, LogActivity.class);
+				    	startActivity(intent);
+				    	finish();
+				    	break;
+					case 4:
+						Toast ToastToken = Toast.makeText(getApplicationContext(),
+								"Error de sesión", Toast.LENGTH_LONG);
+						ToastToken.show();
+					default:
+						
+						intent = new Intent(MapListActivity.this, LogActivity.class);
+				    	startActivity(intent);
+				    	finish();
+						break;
+				
+				
+				
+				}
+				
+				
 		 		}
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
 	     }
 	 }
     

@@ -10,6 +10,7 @@ import android.app.LoaderManager;
 import android.content.Context;
 import android.content.CursorLoader;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
@@ -36,20 +37,7 @@ public class AmigosFragment extends ListFragment implements LoaderManager.Loader
 	 
 	 private Uri direccion;
 	
-    /** An array of items to display in ArrayList */
-	 String apple_versions[] = new String[]{
-             "Mountain Lion",
-             "Lion",
-             "Snow Leopard",
-             "Leopard",
-             "Tiger",
-             "Panther",
-             "Jaguar",
-             "Puma"
-     };
-
-
-    	
+   	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		
@@ -193,8 +181,8 @@ public class AmigosFragment extends ListFragment implements LoaderManager.Loader
 	  }
 	  
 	  public void addAmigo(){
-		  
-		  
+	    	Intent intent = new Intent(AmigosFragment.this.getActivity(), BuscarActivity.class);
+	    	startActivity(intent);
 	  }
 	  // Creates a new loader after the initLoader () call
 	  @Override

@@ -38,6 +38,8 @@ public class LogActivity extends Activity {
 	private static final String URL = "http://192.168.0.153/Ambiway/";
 
 	private String Respuesta = null;
+	private String PassU = null;
+	private String EmailU = null;
 	
 	/**
 	 * A dummy authentication store containing known user names and passwords.
@@ -75,10 +77,12 @@ public class LogActivity extends Activity {
 
 		// Set up the login form.
 		//mEmail = getIntent().getStringExtra(EXTRA_EMAIL);
+		usuarioPass();
 		mEmailView = (EditText) findViewById(R.id.email);
-		//mEmailView.setText(mEmail);
 
 		mPasswordView = (EditText) findViewById(R.id.password);
+		mEmailView.setText(EmailU);
+		mPasswordView.setText(PassU);
 		mPasswordView
 				.setOnEditorActionListener(new TextView.OnEditorActionListener() {
 					@Override
@@ -275,7 +279,8 @@ public class LogActivity extends Activity {
 				switch (error) {
 			    case 0: //correcto
 			    	
-			    	
+			    	getContentResolver().delete(MyAmigosContentProvider.CONTENT_URI1, null, null);
+					getContentResolver().delete(MyAmigosContentProvider.CONTENT_URI2, null, null);
 
 			    	
 			    	String token = datos.getString(UsuarioTable.COLUMN_TOKEN);
@@ -284,7 +289,7 @@ public class LogActivity extends Activity {
 			    	String apellidosU = usuario.getString(UsuarioTable.COLUMN_APELLIDOS);
 			    	String telefonoU = usuario.getString(UsuarioTable.COLUMN_TELEFONO);
 	    			Toast toast1 = Toast.makeText(getApplicationContext(),
-	    					"Bienvenido "+nombreU, Toast.LENGTH_LONG);
+	    					"Bienvenido "+nombreU+" "+token, Toast.LENGTH_LONG);
 	     
 	    			toast1.show();			    	
 
@@ -456,5 +461,21 @@ public class LogActivity extends Activity {
 		    Uri amigo = getContentResolver().insert(MyAmigosContentProvider.CONTENT_URI1, values);
 		    
 		
+	}
+	public void usuarioPass(){
+		//Actualizar
+		//1 Buscar token
+		Cursor cursor = null;
+		String[] projection = { UsuarioTable.COLUMN_ID, UsuarioTable.COLUMN_EMAIL, UsuarioTable.COLUMN_PASSWORD};
+		cursor = getContentResolver().query(MyAmigosContentProvider.CONTENT_URI2, projection, null, null,
+		        null);
+		if (cursor!=null) {
+			if (cursor.moveToFirst()) {
+		    	PassU = cursor.getString(cursor
+		                .getColumnIndexOrThrow(UsuarioTable.COLUMN_PASSWORD));
+		    	EmailU = cursor.getString(cursor
+	                .getColumnIndexOrThrow(UsuarioTable.COLUMN_EMAIL));
+			}
+		}
 	}
 }
