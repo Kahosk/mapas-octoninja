@@ -32,6 +32,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 
+//http://www.nosinmiubuntu.com/2013/03/como-anadir-publicidad-en-android.html
+
 public class MapListActivity extends FragmentActivity implements LocationListener  {
 	TabHost tHost;
 	

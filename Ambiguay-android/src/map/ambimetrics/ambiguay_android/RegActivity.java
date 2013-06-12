@@ -280,9 +280,7 @@ public class RegActivity extends Activity {
 			showProgress(false);
 			try {
 			if (success) {
-		    	Toast toast = Toast.makeText(getApplicationContext(),
-    					Respuesta, Toast.LENGTH_LONG);
-		    	toast.show();
+
 				JSONObject datos = new JSONObject(Respuesta);
 
 				int error = respuestaJSON(datos);
