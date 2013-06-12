@@ -173,9 +173,9 @@ public class FullscreenActivity extends Activity {
 			public void run(){
 				Intent intent = null;
 				if (usuario()){
-					intent = new Intent(FullscreenActivity.this, MapListActivity.class);
+					intent = new Intent(FullscreenActivity.this, MapListActivity.class); //MapListActivity
 				}else{
-					intent = new Intent(FullscreenActivity.this, LogActivity.class);
+					intent = new Intent(FullscreenActivity.this, LogActivity.class); //LogActivity
 				}
 				startActivity(intent);
 				finish();

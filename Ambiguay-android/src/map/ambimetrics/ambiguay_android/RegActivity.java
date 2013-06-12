@@ -3,12 +3,12 @@ package map.ambimetrics.ambiguay_android;
 import map.ambimetrics.comunicacion.RequestMethod;
 import map.ambimetrics.comunicacion.RestClient;
 import map.ambimetrics.contentprovider.MyAmigosContentProvider;
+import map.ambimetrics.database.AmigosTable;
 import map.ambimetrics.database.UsuarioTable;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -16,7 +16,6 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Intent;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -24,9 +23,11 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,16 +36,16 @@ import android.widget.Toast;
  * well.
  */
 public class RegActivity extends Activity {
-	private static final String URL = "http://192.168.0.153/Ambiway/";
-
+	private static final String URL = RequestMethod.URL;
+	
 	private String Respuesta = null;
+	private String PassU = null;
+	private String EmailU = null;
 	
 	/**
 	 * A dummy authentication store containing known user names and passwords.
 	 * TODO: remove after connecting to a real authentication system.
 	 */
-	//private static final String[] DUMMY_CREDENTIALS = new String[] {
-	//		"foo@example.com:hello", "bar@example.com:world" };
 
 	/**
 	 * The default email to populate the email field with.
@@ -54,109 +55,84 @@ public class RegActivity extends Activity {
 	/**
 	 * Keep track of the login task to ensure we can cancel it if requested.
 	 */
-	private UserLoginTask mAuthTask = null;
+	private UserRegisterTask mAuthTask = null;
 
 	// Values for email and password at the time of the login attempt.
+	
 	private String mEmail;
 	private String mPassword;
+	private String mNombre;
+	private String mApellidos;
+	private String mTelefono;
+	private int mSexo;
 
 	// UI references.
 	private EditText mEmailView;
 	private EditText mPasswordView;
-	private View mLoginFormView;
-	private View mLoginStatusView;
-	private TextView mLoginStatusMessageView;
+	private EditText mNombreView;
+	private EditText mApellidosView;
+	private EditText mTelefonoView;
+	private RadioGroup mSexoView;
+	private View mRegisterFormView;
+	private View mRegisterStatusView;
+	private TextView mRegisterStatusMessageView;
 	
 	private Uri usuarioUri = null;
 
 	@Override
 	protected void onCreate(Bundle bundle) {
 		super.onCreate(bundle);
-
-		setContentView(R.layout.activity_log);
-
+		setupActionBar();
+		setContentView(R.layout.activity_reg);
+		usuarioPass();
 		// Set up the login form.
 		//mEmail = getIntent().getStringExtra(EXTRA_EMAIL);
-		mEmailView = (EditText) findViewById(R.id.email);
-		//mEmailView.setText(mEmail);
+		mEmailView = (EditText) findViewById(R.id.email_r);
 
-		mPasswordView = (EditText) findViewById(R.id.password);
+		mPasswordView = (EditText) findViewById(R.id.password_r);
+		mNombreView = (EditText) findViewById(R.id.nombre_r);
+		mApellidosView = (EditText) findViewById(R.id.apellidos_r);
+		mTelefonoView = (EditText) findViewById(R.id.telefono_r);
+		mSexoView = (RadioGroup) findViewById(R.id.sexo_r);
+		
+		
+		mEmailView.setText(EmailU);
 		mPasswordView
 				.setOnEditorActionListener(new TextView.OnEditorActionListener() {
 					@Override
 					public boolean onEditorAction(TextView textView, int id,
 							KeyEvent keyEvent) {
 						if (id == R.id.login || id == EditorInfo.IME_NULL) {
-							attemptLogin();
+							attemptRegister();
 							return true;
 						}
 						return false;
 					}
 				});
 
-		mLoginFormView = findViewById(R.id.login_form);
-		mLoginStatusView = findViewById(R.id.login_status);
-		mLoginStatusMessageView = (TextView) findViewById(R.id.login_status_message);
+		mRegisterFormView = findViewById(R.id.register_form);
+		mRegisterStatusView = findViewById(R.id.register_status);
+		mRegisterStatusMessageView = (TextView) findViewById(R.id.register_status_message);
 		
-	    Bundle extras = getIntent().getExtras();
-
-	    // Check from the saved Instance
-	    usuarioUri = (bundle == null) ? null : (Uri) bundle
-	        .getParcelable(MyAmigosContentProvider.CONTENT_ITEM_TYPE2);
-
-	    // Or passed from the other activity
-	    if (extras != null) {
-	    	usuarioUri = extras
-	          .getParcelable(MyAmigosContentProvider.CONTENT_ITEM_TYPE2);
-	    }
-	    if(usuarioUri != null)
-	    	fillData(usuarioUri);
-
-		
+	
 		
 		findViewById(R.id.sign_in_button).setOnClickListener(
 				new View.OnClickListener() {
 					@Override
 					public void onClick(View view) {
-						attemptLogin();
+						attemptRegister();
 					}
 				});
 	}
 	
-	  private void fillData(Uri uri) {
-		  
-		    String[] projection = { UsuarioTable.COLUMN_NOMBRE, UsuarioTable.COLUMN_APELLIDOS,
-		        UsuarioTable.COLUMN_TELEFONO,UsuarioTable.COLUMN_EMAIL, 
-		        UsuarioTable.COLUMN_PASSWORD};
-		    Cursor cursor = getContentResolver().query(uri, projection, null, null,
-		        null);
-		    if (cursor != null) {
-		      if(cursor.moveToFirst()){
-			      mEmailView.setText(cursor.getString(cursor
-			              .getColumnIndexOrThrow(UsuarioTable.COLUMN_EMAIL)));
-			      mPasswordView.setText(cursor.getString(cursor
-			              .getColumnIndexOrThrow(UsuarioTable.COLUMN_PASSWORD)));
-			      
-			      // Always close the cursor
-			      cursor.close();
-		      }
-		    }
-		  }
 
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		super.onCreateOptionsMenu(menu);
-		getMenuInflater().inflate(R.menu.log, menu);
-		return true;
-	}
 
 	/**
 	 * Attempts to sign in or register the account specified by the login form.
 	 * If there are form errors (invalid email, missing fields, etc.), the
 	 * errors are presented and no actual login attempt is made.
 	 */
-	public void attemptLogin() {
+	public void attemptRegister() {
 		if (mAuthTask != null) {
 			return;
 		}
@@ -164,14 +140,46 @@ public class RegActivity extends Activity {
 		// Reset errors.
 		mEmailView.setError(null);
 		mPasswordView.setError(null);
-
+		mNombreView.setError(null);
+		mApellidosView.setError(null);
+		
 		// Store values at the time of the login attempt.
 		mEmail = mEmailView.getText().toString();
 		mPassword = mPasswordView.getText().toString();
-
+		mNombre = mNombreView.getText().toString();
+		mApellidos = mApellidosView.getText().toString();
+		mTelefono = mTelefonoView.getText().toString();
+		mSexo = mSexoView.getCheckedRadioButtonId();
+		
 		boolean cancel = false;
 		View focusView = null;
-
+		
+		if (mSexo == R.id.hombre_r){
+			mSexo = 1;
+		}else if(mSexo == R.id.mujer_r){
+			mSexo = 2;
+		}else{
+			mSexo = 0;
+		}
+		
+		
+		
+		
+		if (TextUtils.isEmpty(mTelefono)) {
+			mTelefono = "-1";
+		}
+		// Check for a valid lastname.
+		if (TextUtils.isEmpty(mApellidos)) {
+			mApellidosView.setError(getString(R.string.error_field_required));
+			focusView = mApellidosView;
+			cancel = true;
+		}
+		// Check for a valid name.
+		if (TextUtils.isEmpty(mNombre)) {
+			mNombreView.setError(getString(R.string.error_field_required));
+			focusView = mNombreView;
+			cancel = true;
+		}
 		// Check for a valid password.
 		if (TextUtils.isEmpty(mPassword)) {
 			mPasswordView.setError(getString(R.string.error_field_required));
@@ -201,11 +209,13 @@ public class RegActivity extends Activity {
 		} else {
 			// Show a progress spinner, and kick off a background task to
 			// perform the user login attempt.
-			mLoginStatusMessageView.setText(R.string.login_progress_signing_in);
+			mRegisterStatusMessageView.setText(R.string.login_progress_signing_in);
 			showProgress(true);
-			mAuthTask = new UserLoginTask();
+			mAuthTask = new UserRegisterTask();
 			mAuthTask.execute((Void) null);
 		}
+		
+
 	}
 
 	/**
@@ -220,32 +230,32 @@ public class RegActivity extends Activity {
 			int shortAnimTime = getResources().getInteger(
 					android.R.integer.config_shortAnimTime);
 
-			mLoginStatusView.setVisibility(View.VISIBLE);
-			mLoginStatusView.animate().setDuration(shortAnimTime)
+			mRegisterStatusView.setVisibility(View.VISIBLE);
+			mRegisterStatusView.animate().setDuration(shortAnimTime)
 					.alpha(show ? 1 : 0)
 					.setListener(new AnimatorListenerAdapter() {
 						@Override
 						public void onAnimationEnd(Animator animation) {
-							mLoginStatusView.setVisibility(show ? View.VISIBLE
+							mRegisterStatusView.setVisibility(show ? View.VISIBLE
 									: View.GONE);
 						}
 					});
 
-			mLoginFormView.setVisibility(View.VISIBLE);
-			mLoginFormView.animate().setDuration(shortAnimTime)
+			mRegisterFormView.setVisibility(View.VISIBLE);
+			mRegisterFormView.animate().setDuration(shortAnimTime)
 					.alpha(show ? 0 : 1)
 					.setListener(new AnimatorListenerAdapter() {
 						@Override
 						public void onAnimationEnd(Animator animation) {
-							mLoginFormView.setVisibility(show ? View.GONE
+							mRegisterFormView.setVisibility(show ? View.GONE
 									: View.VISIBLE);
 						}
 					});
 		} else {
 			// The ViewPropertyAnimator APIs are not available, so simply show
 			// and hide the relevant UI components.
-			mLoginStatusView.setVisibility(show ? View.VISIBLE : View.GONE);
-			mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+			mRegisterStatusView.setVisibility(show ? View.VISIBLE : View.GONE);
+			mRegisterFormView.setVisibility(show ? View.GONE : View.VISIBLE);
 		}
 	}
 
@@ -253,7 +263,7 @@ public class RegActivity extends Activity {
 	 * Represents an asynchronous login/registration task used to authenticate
 	 * the user.
 	 */
-	public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
+	public class UserRegisterTask extends AsyncTask<Void, Void, Boolean> {
 		@Override
 		protected Boolean doInBackground(Void... params) {
 			// TODO: attempt authentication against a network service.
@@ -270,38 +280,45 @@ public class RegActivity extends Activity {
 			showProgress(false);
 			try {
 			if (success) {
-				int error = respuestaJSON(new JSONObject(Respuesta));
+		    	Toast toast = Toast.makeText(getApplicationContext(),
+    					Respuesta, Toast.LENGTH_LONG);
+		    	toast.show();
+				JSONObject datos = new JSONObject(Respuesta);
+
+				int error = respuestaJSON(datos);
 				Intent intent = null;
 				switch (error) {
 			    case 0: //correcto
 			    	
-			    	//SaveUsuario(new JSONObject(Respuesta));
+			    	String token = datos.getString(UsuarioTable.COLUMN_TOKEN);
+			    	Toast toast1 = Toast.makeText(getApplicationContext(),
+	    					"Bienvenido "+mNombre, Toast.LENGTH_LONG);
+	     
+	    			toast1.show();			    	
+
+			    	SaveUsuario(token);
 			    	
 			    	intent = new Intent(RegActivity.this, MapListActivity.class);
 			    	startActivity(intent);
 			    	finish();
 					break;
 			    case 1: //incorrecto
-			    	mPasswordView
-					.setError("No responde");
-			    	mPasswordView.requestFocus();
+			    	mEmailView
+					.setError("Error del servidor");
+			    	mEmailView.requestFocus();
 					break;
-			    case 2: //Usuario ya registrado
-					mPasswordView
-					.setError(getString(R.string.error_incorrect_password));
-					mPasswordView.requestFocus();
+			    case 2: //usuario que ya existe
+					mEmailView
+					.setError(getString(R.string.error_user_registered));
+					mEmailView.requestFocus();
 					break;
 				default:
-					mPasswordView
-					.setError("default");
-			mPasswordView.requestFocus();
+					mEmailView
+					.setError("Error desconocido.");
+					mEmailView.requestFocus();
 				}
 
-			} else {
-				mPasswordView
-						.setError(getString(R.string.error_incorrect_password));
-				mPasswordView.requestFocus();
-			}
+			} 
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -316,14 +333,24 @@ public class RegActivity extends Activity {
 	}
 	private void sendJSON(){
 
-	    String email = mEmailView.getText().toString();
-	    String password = mPasswordView.getText().toString();
+	  	    /*
+		mEmail
+		mPassword
+		mNombre
+		mApellidos
+		mTelefono
+		mSexo 
+	    */
 	    JSONObject cadena = new JSONObject(); //Creamos un objeto de tipo JSON
     	
 		try { 
-    	  		cadena.put("tag", "login");
-    		    cadena.put(UsuarioTable.COLUMN_EMAIL, email);
-    		    cadena.put(UsuarioTable.COLUMN_PASSWORD, password);//Le asignamos los datos que necesitemos
+    	  		cadena.put("tag", "registro");
+    		    cadena.put(UsuarioTable.COLUMN_EMAIL, mEmail);
+    		    cadena.put(UsuarioTable.COLUMN_PASSWORD, mPassword);//Le asignamos los datos que necesitemos
+    		    cadena.put(UsuarioTable.COLUMN_NOMBRE, mNombre);
+    		    cadena.put(UsuarioTable.COLUMN_APELLIDOS, mApellidos);
+    		    cadena.put(UsuarioTable.COLUMN_TELEFONO, mTelefono);
+    		    cadena.put(UsuarioTable.COLUMN_SEXO, mSexo);
 		}catch (JSONException e) {
         	e.printStackTrace();
         }		
@@ -358,35 +385,88 @@ public class RegActivity extends Activity {
         return resp;
 	
 	}
-	private void SaveUsuario(JSONObject datos){
-        datos.toString(); //Para obtener la cadena de texto de tipo JSON
-        try {
-        	String nombre = datos.getString("nombre");
-        	String apellidos = datos.getString("apellidos");
-        	String telefono = datos.getString("telefono");
-        	String token = datos.getString("token");
-        	JSONObject amigos = datos.getJSONObject("listaAamigos");
-        	
+	private void SaveUsuario(String token){
+    	
+			/*
+			datos.toString(); //Para obtener la cadena de texto de tipo JSON
+	    	String token = datos.getString("token");
+	    	String nombre = datos.getString("nombre");
+	    	String apellidos = datos.getString("apellidos");
+	    	String telefono = datos.getString("telefono");
+	    	*/
     		ContentValues values = new ContentValues();
-    	    values.put(UsuarioTable.COLUMN_NOMBRE, nombre);
-    	    values.put(UsuarioTable.COLUMN_APELLIDOS, apellidos);
-    	    values.put(UsuarioTable.COLUMN_TELEFONO, telefono);
+    	    values.put(UsuarioTable.COLUMN_NOMBRE, mNombre);
+    	    values.put(UsuarioTable.COLUMN_APELLIDOS, mApellidos);
+    	    values.put(UsuarioTable.COLUMN_TELEFONO, mTelefono);
     	    values.put(UsuarioTable.COLUMN_TOKEN, token);
-    	    sendJSON();
-             
+    	    values.put(UsuarioTable.COLUMN_EMAIL, mEmail);
+    	    values.put(UsuarioTable.COLUMN_PASSWORD, mPassword);
     	    
-    	    if (usuarioUri == null){
-    	      // New contacto
-    	      usuarioUri = getContentResolver().insert(MyAmigosContentProvider.CONTENT_URI2, values);
-    	    } else {
-    	      // Update contacto
-    	      getContentResolver().update(usuarioUri, values, null, null);
-    	    }
+    	    Uri usuario = getContentResolver().insert(MyAmigosContentProvider.CONTENT_URI2, values);
 
-        } catch (JSONException e) {
-        	// TODO Auto-generated catch block
-        	e.printStackTrace();
-		}
+	}
 	
+	private void setupActionBar() {
+		getActionBar().setDisplayHomeAsUpEnabled(true);
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case android.R.id.home:
+			// This ID represents the Home or Up button. In the case of this
+			// activity, the Up button is shown. Use NavUtils to allow users
+			// to navigate up one level in the application structure. For
+			// more details, see the Navigation pattern on Android Design:
+			//
+			// http://developer.android.com/design/patterns/navigation.html#up-vs-back
+			//
+			Intent intent = new Intent(RegActivity.this, LogActivity.class);
+	    	startActivity(intent);
+	    	finish();
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+	
+	public void addAmigo(String nombre, String apellidos, String telefono,
+	String email, String sexo, String lat, String longitud, String mostrar) {
+		
+
+			/*
+			String nombre = a.getString(AmigosTable.COLUMN_NOMBRE);
+			String apellidos = a.getString(AmigosTable.COLUMN_APELLIDOS);
+			String telefono = a.getString(AmigosTable.COLUMN_TELEFONO);
+			String email = a.getString(AmigosTable.COLUMN_EMAIL);
+			String sexo = a.getString(AmigosTable.COLUMN_SEXO);
+			String lat = a.getString(AmigosTable.COLUMN_LAT);
+			String longitud = a.getString(AmigosTable.COLUMN_LONG);
+			String mostrar = "1";
+			*/
+
+			ContentValues values = new ContentValues();
+		    values.put(AmigosTable.COLUMN_NOMBRE, nombre);
+		    values.put(AmigosTable.COLUMN_APELLIDOS, apellidos);
+		    values.put(AmigosTable.COLUMN_TELEFONO, telefono);
+		    values.put(AmigosTable.COLUMN_EMAIL, email);
+		    values.put(AmigosTable.COLUMN_SEXO, sexo);
+		    if (lat.equals("null") || longitud.equals("null")){
+		    	values.put(AmigosTable.COLUMN_LAT, "0");
+			    values.put(AmigosTable.COLUMN_LONG, "0");
+		    }else{
+		    values.put(AmigosTable.COLUMN_LAT, lat);
+		    values.put(AmigosTable.COLUMN_LONG, longitud);
+		    }
+		    values.put(AmigosTable.COLUMN_MOSTRAR, mostrar);
+			 
+		 
+		    Uri amigo = getContentResolver().insert(MyAmigosContentProvider.CONTENT_URI1, values);
+		    
+		
+	}
+	public void usuarioPass(){
+		//Actualizar
+		Bundle extras = getIntent().getExtras();
+		EmailU = extras.getString("email");
 	}
 }

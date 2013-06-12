@@ -3,8 +3,16 @@ package map.ambimetrics.ambiguay_android;
 
 
 
+import map.ambimetrics.comunicacion.RequestMethod;
+import map.ambimetrics.comunicacion.RestClient;
 import map.ambimetrics.contentprovider.MyAmigosContentProvider;
 import map.ambimetrics.database.AmigosTable;
+import map.ambimetrics.database.UsuarioTable;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.app.AlertDialog;
 import android.app.LoaderManager;
 import android.content.Context;
@@ -14,6 +22,7 @@ import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.view.LayoutInflater;
@@ -22,10 +31,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.SimpleCursorAdapter;
+import android.widget.Toast;
 
 
 //http://developer.android.com/intl/es/reference/android/app/LoaderManager.html
@@ -34,13 +43,17 @@ public class AmigosFragment extends ListFragment implements LoaderManager.Loader
 	 private SimpleCursorAdapter adapter;
 	 SearchView mSearchView;
 	 private static final int DELETE_ID = Menu.FIRST + 1;
-	 
+	 private String emailDelete = null;
+	 private String EmailU = null;
+	 private String TokenU = null;
+	 private String emailAmigo = null;
 	 private Uri direccion;
-	
+	 private static final String URL = RequestMethod.URL;
+	 private String Respuesta = null;
    	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		
+		usuarioToken();
 		fillData();
 		//Comunication
 		//http://android-er.blogspot.com.es/2012/06/communication-between-fragments-in.html
@@ -75,6 +88,14 @@ public class AmigosFragment extends ListFragment implements LoaderManager.Loader
     	builder.setPositiveButton(R.string.sure, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 // User clicked OK button
+            	emailEliminar();
+            	
+				Toast ToastFallo = Toast.makeText(getActivity().getApplicationContext(),
+						emailDelete, Toast.LENGTH_LONG);
+				ToastFallo.show();
+            	
+            	
+            	new DeleteFriendTask().execute();
             	getActivity().getContentResolver().delete(direccion, null, null);
                 fillData(); 
             	dialog.cancel();
@@ -204,8 +225,127 @@ public class AmigosFragment extends ListFragment implements LoaderManager.Loader
 	    // data is not available anymore, delete reference
 	    adapter.swapCursor(null);
 	  }
+	//Comunicacion
 	  
+		public void emailEliminar(){
+			//Actualizar
+			//1 Buscar token
+			Cursor cursor = null;
+			String[] projection = { AmigosTable.COLUMN_ID, AmigosTable.COLUMN_EMAIL};
+			cursor = getActivity().getContentResolver().query(direccion, projection, null, null,
+			        null);
+			if (cursor!=null) {
+				if (cursor.moveToFirst()) {
+					emailDelete = cursor.getString(cursor
+		                .getColumnIndexOrThrow(UsuarioTable.COLUMN_EMAIL));
+				}
+			}
+			
+		}	
+	  
+		public void usuarioToken(){
+			//Actualizar
+			//1 Buscar token
+			Cursor cursor = null;
+			String[] projection = { UsuarioTable.COLUMN_ID, UsuarioTable.COLUMN_EMAIL, UsuarioTable.COLUMN_TOKEN};
+			cursor = getActivity().getContentResolver().query(MyAmigosContentProvider.CONTENT_URI2, projection, null, null,
+			        null);
+			if (cursor!=null) {
+				if (cursor.moveToFirst()) {
+			    	TokenU = cursor.getString(cursor
+			                .getColumnIndexOrThrow(UsuarioTable.COLUMN_TOKEN));
+			    	EmailU = cursor.getString(cursor
+		                .getColumnIndexOrThrow(UsuarioTable.COLUMN_EMAIL));
+				}
+			}
+			
+		}	  
+	 private void sendJSONdelete(){
+			    
+			    JSONObject cadena = new JSONObject(); //Creamos un objeto de tipo JSON
+		    	
+				try { 
+			  		cadena.put("tag", "eliminar");
+			  		cadena.put("email", EmailU);
+			  		cadena.put("token", TokenU);
+			  		cadena.put("emailAmigo", emailDelete);
+			
+				   
+			  		//Le asignamos los datos que necesitemos
+				}catch (JSONException e) {
+		        	e.printStackTrace();
+		        }		
+				
 
+				RestClient client = new RestClient(URL);
+				client.AddParam("JSON", cadena.toString());
+				Respuesta = client.getResponse();
+
+
+				try {
+				    client.Execute(RequestMethod.POST);
+							    
+				} catch (Exception e) {
+				    e.printStackTrace();
+				}
+				
+				Respuesta = client.getResponse();
+			
+				
+			}
+ 	private int respuestaJSON(JSONObject cadena){
+	        cadena.toString(); //Para obtener la cadena de texto de tipo JSON
+	        int resp = 1;
+	        try {
+	        	String error = cadena.getString("error");
+	        	resp = Integer.parseInt(error);
+	        } catch (JSONException e) {
+	        	// TODO Auto-generated catch block
+	        	e.printStackTrace();
+			}
+	        return resp;
+		
+		}		 
+	 private class DeleteFriendTask extends AsyncTask<Void, Void, Boolean> {
+		     protected Boolean doInBackground(Void... params) {
+
+		    	 sendJSONdelete();
+				return true;
+		     }
+		     @Override
+		     protected void onPostExecute(final Boolean success) {
+		    	 try {
+			 		if (success){
+					
+		    	 	JSONObject datos = new JSONObject(Respuesta);
+		    	 	Intent intent = null;
+					int error = respuestaJSON(datos);
+					switch (error) {
+						case 0:
+							Toast ToastAdd = Toast.makeText(getActivity().getApplicationContext(),
+									"Eliminado", Toast.LENGTH_LONG);
+							ToastAdd.show();
+							break;
+						default:
+							Toast ToastFallo = Toast.makeText(getActivity().getApplicationContext(),
+									String.valueOf(error), Toast.LENGTH_LONG);
+							ToastFallo.show();
+							intent = new Intent(getActivity().getApplicationContext(), LogActivity.class);
+					    	startActivity(intent);
+					    	getActivity().finish();
+							break;
+
+					}
+					
+					
+			 		}
+					} catch (JSONException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+
+		     }
+		 }
 
 	
 }

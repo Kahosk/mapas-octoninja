@@ -5,7 +5,7 @@
     <!-- Login progress -->
 
     <LinearLayout
-        android:id="@+id/registrar_status"
+        android:id="@+id/register_status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
@@ -20,7 +20,7 @@
             android:layout_marginBottom="8dp" />
 
         <TextView
-            android:id="@+id/registrar_status_message"
+            android:id="@+id/register_status_message"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
@@ -32,75 +32,100 @@
     <!-- Login form -->
 
     <ScrollView
-        android:id="@+id/registrar_form"
+        android:id="@+id/register_form"
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
 
         <LinearLayout
             style="@style/LoginFormContainer"
             android:orientation="vertical" >
-<EditText
-                android:id="@+id/nombre"
+
+            <LinearLayout
+                android:id="@+id/registrar_form"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:ems="10"
-                android:hint="@string/prompt_nombre"
-                android:inputType="textCapWords"
-                android:maxLines="1"
-                android:singleLine="true"
-                android:text="prueba" >
-
-                <requestFocus />
-            </EditText>
+                android:orientation="vertical" >
+            </LinearLayout>
 
             <EditText
-                android:id="@+id/apellidos"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:ems="10"
-                android:hint="@string/prompt_apellidos"
-                android:inputType="textCapWords"
-                android:maxLines="1"
-                android:singleLine="true"
-                android:text="prueba" />
-
-            <EditText
-                android:id="@+id/telefono"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:ems="10"
-                android:hint="@string/prompt_telefono"
-                android:inputType="phone"
-                android:maxLines="1"
-                android:singleLine="true"
-                android:text="12345" />
-            <EditText
-                android:id="@+id/email"
+                android:id="@+id/email_r"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/prompt_email"
                 android:inputType="textEmailAddress"
                 android:maxLines="1"
-                android:singleLine="true" />
+                android:singleLine="true" >
+                <requestFocus />
+            </EditText>
 
             <EditText
-                android:id="@+id/password"
+                android:id="@+id/password_r"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/prompt_password"
-                android:imeActionId="@+id/registrar"
+                android:imeActionId="@+id/login"
                 android:imeActionLabel="@string/action_sign_in_short"
                 android:imeOptions="actionUnspecified"
                 android:inputType="textPassword"
                 android:maxLines="1"
                 android:singleLine="true" />
 
+            <EditText
+                android:id="@+id/nombre_r"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="@string/prompt_nombre"
+                android:inputType="textPersonName" />
+
+                
+
+            <EditText
+                android:id="@+id/apellidos_r"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="@string/prompt_apellidos"
+                android:inputType="textPersonName" />
+
+            <EditText
+                android:id="@+id/telefono_r"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="@string/prompt_telefono"
+                android:inputType="phone" />
+
             <TextSwitcher
                 android:id="@+id/textSwitcher"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" >
-
             </TextSwitcher>
+
+            <RadioGroup
+                android:id="@+id/sexo_r"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <RadioButton
+                    android:id="@+id/otro_r"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="@string/prompt_otro" />
+
+                <RadioButton
+                    android:id="@+id/hombre_r"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/prompt_hombre" />
+
+                <RadioButton
+                    android:id="@+id/mujer_r"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/prompt_mujer" />
+            </RadioGroup>
 
             <Button
                 android:id="@+id/sign_in_button"
@@ -110,7 +135,7 @@
                 android:layout_marginTop="16dp"
                 android:paddingLeft="32dp"
                 android:paddingRight="32dp"
-                android:text="@string/action_sign_in_register" />
+                android:text="@string/action_register" />
         </LinearLayout>
     </ScrollView>
 

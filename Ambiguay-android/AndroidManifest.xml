@@ -67,9 +67,22 @@
             android:windowSoftInputMode="adjustResize|stateVisible" >
         </activity>
         <activity
+            android:name="map.ambimetrics.ambiguay_android.RegActivity"
+            android:label="@string/title_activity_reg"
+            android:windowSoftInputMode="adjustResize|stateVisible" >
+        </activity>
+        <activity
             android:name="map.ambimetrics.ambiguay_android.BuscarActivity"
             android:label="@string/title_activity_buscar"
             android:windowSoftInputMode="adjustResize|stateVisible" >
+        </activity>
+        <activity
+            android:name="map.ambimetrics.ambiguay_android.ListBusquedaActivity"
+            android:label="@string/title_activity_list_busqueda"
+            android:parentActivityName="map.ambimetrics.ambiguay_android.BuscarActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="map.ambimetrics.ambiguay_android.BuscarActivity" />
         </activity>
     </application>
 

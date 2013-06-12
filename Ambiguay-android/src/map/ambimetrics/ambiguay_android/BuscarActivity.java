@@ -30,6 +30,13 @@ public class BuscarActivity extends Activity {
 		bNombreView = (EditText) findViewById(R.id.bnombre);
 		bApellidosView = (EditText) findViewById(R.id.bapellidos);
 		
+		Bundle extras = getIntent().getExtras();
+		if (extras != null) {
+			String error = extras.getString("error");
+			bEmailView.setError(error);
+			bEmailView.requestFocus();
+		}
+		
 		findViewById(R.id.buscar_button).setOnClickListener(
 				new View.OnClickListener() {
 					@Override
@@ -62,9 +69,13 @@ public class BuscarActivity extends Activity {
 		
 		if (vacio<3){
 			String buscar[]= new String[]{bEmail, bNombre, bApellidos};
-			//Intent i = new Intent(this, ListBusquedaActivity.class);
-			//i.putExtra("datos", buscar);
-			//startActivity(i);
+			Intent i = new Intent(this, ListBusquedaActivity.class);
+			i.putExtra("email", bEmail);
+			i.putExtra("nombre", bNombre);
+			i.putExtra("apellidos", bApellidos);
+			
+			startActivity(i);
+			finish();
 			
 			
 		}else{

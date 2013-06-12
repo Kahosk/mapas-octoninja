@@ -35,7 +35,7 @@ import android.widget.Toast;
  * well.
  */
 public class LogActivity extends Activity {
-	private static final String URL = "http://192.168.0.153/Ambiway/";
+	private static final String URL = RequestMethod.URL;
 
 	private String Respuesta = null;
 	private String PassU = null;
@@ -175,21 +175,19 @@ public class LogActivity extends Activity {
 		View focusView = null;
 
 		// Check for a valid password.
-		if (TextUtils.isEmpty(mPassword)) {
-			mPasswordView.setError(getString(R.string.error_field_required));
-			focusView = mPasswordView;
-			cancel = true;
-		} else if (mPassword.length() < 3) {
-			mPasswordView.setError(getString(R.string.error_invalid_password));
-			focusView = mPasswordView;
-			cancel = true;
-		}
+
 
 		// Check for a valid email address.
 		if (TextUtils.isEmpty(mEmail)) {
-			mEmailView.setError(getString(R.string.error_field_required));
+			registrar(0);
 			focusView = mEmailView;
 			cancel = true;
+
+		} else if (TextUtils.isEmpty(mPassword)) {
+			registrar(0);
+			focusView = mEmailView;
+			cancel = true;
+
 		} else if (!mEmail.contains("@")) {
 			mEmailView.setError(getString(R.string.error_invalid_email));
 			focusView = mEmailView;
@@ -289,7 +287,7 @@ public class LogActivity extends Activity {
 			    	String apellidosU = usuario.getString(UsuarioTable.COLUMN_APELLIDOS);
 			    	String telefonoU = usuario.getString(UsuarioTable.COLUMN_TELEFONO);
 	    			Toast toast1 = Toast.makeText(getApplicationContext(),
-	    					"Bienvenido "+nombreU+" "+token, Toast.LENGTH_LONG);
+	    					"Bienvenido "+nombreU, Toast.LENGTH_LONG);
 	     
 	    			toast1.show();			    	
 
@@ -304,12 +302,12 @@ public class LogActivity extends Activity {
 		    			String nombre = a.getString(AmigosTable.COLUMN_NOMBRE);
 		    			String apellidos = a.getString(AmigosTable.COLUMN_APELLIDOS);
 		    			String telefono = a.getString(AmigosTable.COLUMN_TELEFONO);
-		    			//String email = a.getString(AmigosTable.COLUMN_EMAIL);
-		    			String email = "no";
+		    			String email = a.getString(AmigosTable.COLUMN_EMAIL);
+		    			//String email = "no";
 		    			String sexo = a.getString(AmigosTable.COLUMN_SEXO);
 		    			String lat = a.getString(AmigosTable.COLUMN_LAT);
 		    			String longitud = a.getString(AmigosTable.COLUMN_LONG);
-		    			String mostrar = "1";
+		    			String mostrar = a.getString("actualizado");
 
 		    			addAmigo(nombre,apellidos,telefono,email,sexo,lat,longitud,mostrar);
 		    		}
@@ -331,14 +329,9 @@ public class LogActivity extends Activity {
 					break;
 			    case 3: //usuario no registrado
 					//intent 
-			    	/*
-			    	intent = new Intent(LogActivity.this, FullscreenActivity.class);
-			    	startActivity(intent);
-			    	finish();
-			    	*/
-					mPasswordView
-					.setError("3");
-			mPasswordView.requestFocus();
+			    	registrar(1);
+			    	
+
 					break;
 				default:
 					mPasswordView
@@ -478,4 +471,23 @@ public class LogActivity extends Activity {
 			}
 		}
 	}
+	
+	
+	public void registrar(int registrado){
+		getContentResolver().delete(MyAmigosContentProvider.CONTENT_URI1, null, null);
+		getContentResolver().delete(MyAmigosContentProvider.CONTENT_URI2, null, null);
+		
+		if (registrado==1){
+    	Toast toastNoUsuario = Toast.makeText(getApplicationContext(),
+				"Usuario no registrado" , Toast.LENGTH_SHORT);
+				toastNoUsuario.show();
+		}
+		Intent intent = new Intent(LogActivity.this, RegActivity.class);
+		
+		intent.putExtra("email", mEmail);
+    	
+    	startActivity(intent);
+    	finish();
+	}
+	
 }

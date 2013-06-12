@@ -1,15 +1,15 @@
 package map.ambimetrics.ambiguay_android;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-
 import map.ambimetrics.comunicacion.RequestMethod;
 import map.ambimetrics.comunicacion.RestClient;
 import map.ambimetrics.contentprovider.MyAmigosContentProvider;
 import map.ambimetrics.database.AmigosTable;
 import map.ambimetrics.database.UsuarioTable;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
@@ -19,6 +19,8 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.TabHost;
 import android.widget.Toast;
 
@@ -30,18 +32,16 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 
-
-
-
 public class MapListActivity extends FragmentActivity implements LocationListener  {
 	TabHost tHost;
 	
-	private static final String URL = "http://192.168.0.153/Ambiway/";
+	private static final String URL = RequestMethod.URL;
 	private String Respuesta = null;
 	private String EmailU = null;
 	private String TokenU = null;
-	private double dLatitude = 90;
-    private double dLongitude = 90;
+	
+	private double dLatitude = 200;
+    private double dLongitude = 200;
 	
 	private GoogleMap mapa = null;
 	
@@ -88,8 +88,10 @@ public class MapListActivity extends FragmentActivity implements LocationListene
 				
 				/** If current tab is map */
 				if(tabId.equalsIgnoreCase("map")){
-
-						ft.attach(mapFragment);						
+					mapa.clear();
+					extrasMapa();
+					usuarioToken();
+					ft.attach(mapFragment);						
 
 				}else{	/** If current tab is amigos */
 					mapa.clear();
@@ -163,15 +165,19 @@ public class MapListActivity extends FragmentActivity implements LocationListene
 	    }
     }
     
-	public void mostrarMarcador(double lat, double lng, String titulo, int sexo)
+	public void mostrarMarcador(double lat, double lng, String titulo, int sexo, int mostrar)
 	{
+		
+
 		float color = BitmapDescriptorFactory.HUE_YELLOW;
 		if (sexo == 1){
 			color = BitmapDescriptorFactory.HUE_AZURE;
 		}else if(sexo == 2){
-			color = BitmapDescriptorFactory.HUE_MAGENTA;
+			color = BitmapDescriptorFactory.HUE_VIOLET;
 		}
-			
+		if (mostrar == 0){
+			color = BitmapDescriptorFactory.HUE_RED;
+		}
 		mapa.addMarker(new MarkerOptions()
         .position(new LatLng(lat, lng))
         .title(titulo).icon(BitmapDescriptorFactory.defaultMarker(color)));
@@ -193,7 +199,11 @@ public class MapListActivity extends FragmentActivity implements LocationListene
 			                .getColumnIndexOrThrow(AmigosTable.COLUMN_NOMBRE));
 			    	String sexo = cursor.getString(cursor
 			                .getColumnIndexOrThrow(AmigosTable.COLUMN_SEXO));
-			    	mostrarMarcador(Double.valueOf(lat).doubleValue(),Double.valueOf(longitud).doubleValue(),nombre, Integer.parseInt(sexo));
+			    	String mostrar = cursor.getString(cursor
+			                .getColumnIndexOrThrow(AmigosTable.COLUMN_MOSTRAR));
+			    	
+			    	
+			    	mostrarMarcador(Double.valueOf(lat).doubleValue(),Double.valueOf(longitud).doubleValue(),nombre, Integer.parseInt(sexo), Integer.parseInt(mostrar));
 			    	while(cursor.moveToNext()){
 			    		lat = cursor.getString(cursor
 				                .getColumnIndexOrThrow(AmigosTable.COLUMN_LAT));
@@ -203,7 +213,10 @@ public class MapListActivity extends FragmentActivity implements LocationListene
 				                .getColumnIndexOrThrow(AmigosTable.COLUMN_NOMBRE));
 				    	sexo = cursor.getString(cursor
 				                .getColumnIndexOrThrow(AmigosTable.COLUMN_SEXO));
-				    	mostrarMarcador(Double.valueOf(lat).doubleValue(),Double.valueOf(longitud).doubleValue(),nombre, Integer.parseInt(sexo));
+				    	mostrar = cursor.getString(cursor
+				                .getColumnIndexOrThrow(AmigosTable.COLUMN_MOSTRAR));
+				    	
+				    	mostrarMarcador(Double.valueOf(lat).doubleValue(),Double.valueOf(longitud).doubleValue(),nombre, Integer.parseInt(sexo), Integer.parseInt(mostrar));
 			    	}
 		    	}
 		    }
@@ -262,13 +275,8 @@ public class MapListActivity extends FragmentActivity implements LocationListene
 			}
 		}
 		//2 Petición actualizar
-		if ((TokenU!=null && EmailU!=null) && (dLongitude!=90 && dLatitude!=90)){
-			/*
-			Toast toast1 = Toast.makeText(getApplicationContext(),
-					"En proceso..." , Toast.LENGTH_SHORT);
-
-			toast1.show();
-			*/
+		if ((TokenU!=null && EmailU!=null)&&(dLongitude!=90 && dLatitude!=180)){
+						
 			new DownloadDataTask().execute();
 			
 		}
@@ -288,7 +296,9 @@ public class MapListActivity extends FragmentActivity implements LocationListene
 	  		//Le asignamos los datos que necesitemos
 		}catch (JSONException e) {
         	e.printStackTrace();
-        }		
+        }
+		
+
 		
 		RestClient client = new RestClient(URL);
 		client.AddParam("JSON", cadena.toString());
@@ -358,11 +368,8 @@ public class MapListActivity extends FragmentActivity implements LocationListene
 	     protected void onPostExecute(final Boolean success) {
 	    	 try {
 		 		if (success){
-		 			/*
-		 			Toast toast2 = Toast.makeText(getApplicationContext(),
-						Respuesta, Toast.LENGTH_LONG);
-				toast2.show();
-				*/
+		 			
+		
 	    	 	JSONObject datos = new JSONObject(Respuesta);
 	    	 	Intent intent = null;
 				int error = respuestaJSON(datos);
@@ -377,16 +384,16 @@ public class MapListActivity extends FragmentActivity implements LocationListene
 			    		for(int i = 0; i < amigos.length(); i++){
 			    			JSONObject a = amigos.getJSONObject(i);
 			    			a.toString();
-			    			
+
 			    			String nombre = a.getString(AmigosTable.COLUMN_NOMBRE);
 			    			String apellidos = a.getString(AmigosTable.COLUMN_APELLIDOS);
 			    			String telefono = a.getString(AmigosTable.COLUMN_TELEFONO);
-			    			//String email = a.getString(AmigosTable.COLUMN_EMAIL);
-			    			String email = "no";
+			    			String email = a.getString(AmigosTable.COLUMN_EMAIL);
+			    			//String email = "no";
 			    			String sexo = a.getString(AmigosTable.COLUMN_SEXO);
 			    			String lat = a.getString(AmigosTable.COLUMN_LAT);
 			    			String longitud = a.getString(AmigosTable.COLUMN_LONG);
-			    			String mostrar = "1";
+			    			String mostrar = a.getString("actualizado");;
 
 			    			addAmigo(nombre,apellidos,telefono,email,sexo,lat,longitud,mostrar);
 			    		}
@@ -424,5 +431,34 @@ public class MapListActivity extends FragmentActivity implements LocationListene
 
 	     }
 	 }
+ 
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.main, menu);
+		return true;
+	}
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.desconectar:
+			getContentResolver().delete(MyAmigosContentProvider.CONTENT_URI1, null, null);
+			getContentResolver().delete(MyAmigosContentProvider.CONTENT_URI2, null, null);
+			
+
+		    Toast toastDesconectar = Toast.makeText(getApplicationContext(),
+						"Desconectando..." , Toast.LENGTH_SHORT);
+			toastDesconectar.show();
+
+			Intent intent = new Intent(MapListActivity.this, LogActivity.class);
+			startActivity(intent);
+
+			
+			finish();
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
     
 }	
