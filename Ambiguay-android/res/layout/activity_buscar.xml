@@ -1,0 +1,50 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".BuscarActivity"
+    android:orientation="vertical" >
+
+   
+     <EditText
+	     android:id="@+id/bemail"
+	     android:layout_width="match_parent"
+	     android:layout_height="wrap_content"
+	     android:hint="@string/prompt_email"
+	     android:inputType="textEmailAddress"
+	     android:maxLines="1"
+	     android:singleLine="true" >
+	     <requestFocus />
+	 </EditText>    
+     <EditText
+         android:id="@+id/bnombre"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:ems="10"
+         android:hint="@string/prompt_nombre"
+         android:inputType="textCapWords"
+         android:maxLines="1"
+         android:singleLine="true"
+         />
+
+      <EditText
+          android:id="@+id/bapellidos"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:ems="10"
+          android:hint="@string/prompt_apellidos"
+          android:inputType="textCapWords"
+          android:maxLines="1"
+          android:singleLine="true"
+          />
+     <Button
+          android:id="@+id/buscar_button"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_gravity="right"
+          android:layout_marginTop="16dp"
+          android:paddingLeft="32dp"
+          android:paddingRight="32dp"
+          android:text="@string/action_buscar" />
+
+</LinearLayout>

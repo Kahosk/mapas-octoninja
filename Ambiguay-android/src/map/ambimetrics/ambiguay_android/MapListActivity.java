@@ -59,9 +59,8 @@ public class MapListActivity extends FragmentActivity implements LocationListene
         tHost.setup();
         
         
-  
-        
-        
+        if (RequestMethod.hasInternet(this)){
+             
         /** Defining Tab Change Listener event. This is invoked when tab is changed */
         TabHost.OnTabChangeListener tabChangeListener = new TabHost.OnTabChangeListener() {
 			
@@ -139,6 +138,15 @@ public class MapListActivity extends FragmentActivity implements LocationListene
 		extrasMapa();
         	
 		marcarAmigos();
+        }else{			
+        	
+        Toast ToastFallo = Toast.makeText(getApplicationContext(),
+				"No tienes internet", Toast.LENGTH_LONG);
+		ToastFallo.show();
+		Intent noInternet = new Intent(MapListActivity.this, LogActivity.class);
+    	startActivity(noInternet);
+    	finish();
+    }
 
      }
 

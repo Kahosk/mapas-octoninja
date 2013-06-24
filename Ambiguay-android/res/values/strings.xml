@@ -11,6 +11,7 @@
     <string name="hello_world">Hello world!</string>
     <string name="title_activity_map_list">MapListActivity</string>
     <string name="Insert">Añadir</string>
+    <string name="offline">Offline</string>
     <string name="negative">No</string>
     <string name="sure">Si</string>
     <string name="dialog_delete">¿Eliminar amigo?</string>

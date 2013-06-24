@@ -1,13 +1,20 @@
+<RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+    	xmlns:ads="http://schemas.android.com/apk/lib/com.google.ads" 
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+    
 <TabHost
-    xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@android:id/tabhost"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_alignParentTop="true"
+    android:layout_above="@+id/botlane"  >
 
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="fill_parent">
 
         
         <TabWidget
@@ -30,7 +37,8 @@
         android:id="@+id/mapa"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        class="com.google.android.gms.maps.SupportMapFragment" /> 
+        class="com.google.android.gms.maps.SupportMapFragment" />
+ 
         </LinearLayout>
  
             <LinearLayout android:id="@+id/tab2"
@@ -41,11 +49,38 @@
         <FrameLayout
             android:id="@+id/realtabcontent2"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"/>  
+            android:layout_height="fill_parent"
+            android:layout_weight="1"/>
+        
         </LinearLayout>
          </FrameLayout>          	
         	
 
     </LinearLayout>
+
+
+
 </TabHost>
+
+<LinearLayout
+    android:id="@+id/botlane"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_alignParentBottom="true"
+    android:layout_alignParentLeft="true"
+    android:layout_above="@+id/tabhost" 
+    android:orientation="vertical" >
+
+<com.google.ads.AdView
+    android:id="@+id/adView"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+
+    android:layout_weight="1"
+    ads:adSize="SMART_BANNER"
+    ads:adUnitId="a151b98745733f4"
+    ads:loadAdOnCreate="true"
+    ads:testDevices="TEST_EMULATOR, NR45-2VZB-UPOD-X" >
+</com.google.ads.AdView>
+</LinearLayout>
+</RelativeLayout>

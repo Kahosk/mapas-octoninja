@@ -9,7 +9,6 @@ import map.ambimetrics.contentprovider.MyAmigosContentProvider;
 import map.ambimetrics.database.AmigosTable;
 import map.ambimetrics.database.UsuarioTable;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -184,7 +183,11 @@ public class AmigosFragment extends ListFragment implements LoaderManager.Loader
 	// Create the menu based on the XML defintion
 	  @Override
 	  public void onCreateOptionsMenu(Menu menu,  MenuInflater inflater) {
-	    inflater.inflate(R.menu.listmenu, menu);
+		  if (RequestMethod.hasInternet(this.getActivity())){
+		  inflater.inflate(R.menu.listmenu, menu);
+		  }else{
+			  inflater.inflate(R.menu.offmenu, menu);  
+		  }
 	    
 	    
 	    

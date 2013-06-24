@@ -72,7 +72,7 @@ public class LogActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle bundle) {
 		super.onCreate(bundle);
-
+		if (RequestMethod.hasInternet(this)){
 		setContentView(R.layout.activity_log);
 
 		// Set up the login form.
@@ -123,6 +123,8 @@ public class LogActivity extends Activity {
 						attemptLogin();
 					}
 				});
+		}
+		
 	}
 	
 	  private void fillData(Uri uri) {
